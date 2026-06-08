@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Amani Challenge">
+<meta name="theme-color" content="#D4AF37">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Amani Challenge">
+<title>Amani Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #D4AF37;
+  --gold-light: #F5D87A;
+  --red: #8B0000;
+  --red-bright: #C0392B;
+  --dark: #0A0A0A;
+  --dark2: #111111;
+  --dark3: #1A1A1A;
+  --dark4: #222222;
+  --text: #F0E6C8;
+  --glow: rgba(212,175,55,0.4);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:#0A0A0A; }
+body {
+  background: #0A0A0A;
+  color: var(--text);
+  font-family: 'Raleway', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background: radial-gradient(ellipse at 20% 20%, rgba(139,0,0,0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.1) 0%, transparent 50%);
+  pointer-events:none; z-index:0;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  overflow: hidden;
+  z-index: 1;
+}
+.screen.active { display: flex; }
+
+/* ===== HOME SCREEN ===== */
+#home-screen {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: calc(var(--safe-top) + 20px);
+  padding-bottom: calc(var(--safe-bottom) + 20px);
+}
+
+.home-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  animation: fadeDown 0.8s ease;
+}
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.logo-circle {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 20px var(--glow);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.logo-circle img { width:100%; height:100%; object-fit:cover; }
+
+.amani-logo {
+  height: 60px; object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(212,175,55,0.5));
+}
+
+.home-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(13px, 3.5vw, 18px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(240,230,200,0.6);
+  text-align: center;
+  margin-bottom: 8px;
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.home-tagline {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeUp 0.8s ease 0.3s both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.main-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 320px;
+  animation: fadeUp 0.8s ease 0.4s both;
+}
+
+.main-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+.main-btn::after {
+  content: '›';
+  position: absolute;
+  right: 20px;
+  font-size: 24px;
+  opacity: 0.6;
+}
+.main-btn:active { transform: scale(0.97); }
+
+.btn-vote {
+  background: linear-gradient(135deg, var(--red), #5A0000);
+  border: 1px solid rgba(212,175,55,0.5);
+  color: var(--gold);
+  box-shadow: 0 4px 20px rgba(139,0,0,0.4);
+}
+.btn-vote:hover { box-shadow: 0 4px 30px rgba(139,0,0,0.6); }
+
+.btn-classement {
+  background: linear-gradient(135deg, #1A3A1A, #0A2A0A);
+  border: 1px solid rgba(212,175,55,0.5);
+  color: var(--gold);
+  box-shadow: 0 4px 20px rgba(0,80,0,0.3);
+}
+
+.btn-icon { font-size: 28px; flex-shrink: 0; }
+.btn-content { flex: 1; }
+.btn-title { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+.btn-sub { font-size: 11px; opacity: 0.7; font-weight: 400; letter-spacing: 0; }
+
+.admin-link {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.2);
+  color: rgba(240,230,200,0.4);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  animation: fadeUp 0.8s ease 0.6s both;
+}
+.admin-link:hover { color: var(--gold); border-color: rgba(212,175,55,0.4); }
+
+/* ===== TOP BAR (shared) ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  padding-top: calc(var(--safe-top) + 12px);
+  background: rgba(10,10,10,0.95);
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.back-btn {
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.3);
+  color: var(--gold);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.back-btn:active { background: rgba(212,175,55,0.1); }
+.topbar-logo { height: 30px; object-fit: contain; margin: 0 10px; }
+.topbar-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  flex: 1;
+  text-align: center;
+}
+.topbar-right { width: 36px; }
+
+/* ===== SCROLL CONTENT ===== */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--safe-bottom) + 20px);
+}
+
+/* ===== VOTE SCREEN ===== */
+.vote-container {
+  padding: 24px 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.vote-info-card {
+  background: var(--dark3);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.vote-price {
+  font-family: 'Cinzel', serif;
+  font-size: 28px;
+  color: var(--gold);
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+.vote-price-sub { font-size: 11px; letter-spacing: 2px; color: rgba(240,230,200,0.5); text-transform: uppercase; }
+.payment-methods {
+  display: flex; gap: 12px; margin-top: 16px;
+}
+.payment-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55,0.3);
+  background: var(--dark4);
+  color: var(--text);
+  font-family: 'Raleway', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+.payment-btn.selected {
+  background: rgba(212,175,55,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.payment-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+.vote-steps {
+  margin-bottom: 20px;
+}
+.step {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 1px solid var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-text { font-size: 13px; line-height: 1.7; color: rgba(240,230,200,0.8); }
+.step-text strong { color: var(--gold); }
+
+.vote-form-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, var(--red), #5A0000);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 18px;
+  border-radius: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.vote-form-btn:active { transform: scale(0.98); }
+
+/* ===== CLASSEMENT SCREEN ===== */
+.live-strip {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(90deg, transparent, rgba(192,57,43,0.3), transparent);
+  padding: 8px; border-bottom: 1px solid rgba(192,57,43,0.3);
+  flex-shrink: 0;
+}
+.live-dot { width:7px; height:7px; background:var(--red-bright); border-radius:50%; animation:blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+.live-text { font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; color:var(--red-bright); text-transform:uppercase; }
+
+.stats-bar {
+  display:flex; justify-content:center; gap:20px; flex-wrap:wrap;
+  padding:12px 16px; border-bottom:1px solid rgba(212,175,55,0.1);
+  flex-shrink: 0;
+}
+.stat { text-align:center; }
+.stat-number { font-family:'Cinzel',serif; font-size:22px; color:var(--gold); font-weight:700; }
+.stat-label { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:rgba(240,230,200,0.4); }
+
+.results-container { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+.loading { text-align:center; padding:60px 20px; }
+.spinner {
+  width:40px; height:40px;
+  border:3px solid rgba(212,175,55,0.2);
+  border-top-color:var(--gold);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:0 auto 16px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.podium { display:flex; align-items:flex-end; justify-content:center; gap:10px; margin-bottom:24px; }
+.podium-item {
+  flex:1; min-width:90px; max-width:160px;
+  background:var(--dark3); border:1px solid rgba(212,175,55,0.2);
+  border-radius:10px 10px 0 0; padding:12px 10px; text-align:center;
+  animation: riseUp 0.5s ease forwards; opacity:0;
+}
+.podium-item:nth-child(2) { border-color:var(--gold); box-shadow:0 0 15px var(--glow); }
+@keyframes riseUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+.podium-avatar {
+  width:52px; height:52px; border-radius:50%; margin:0 auto 8px;
+  border:2px solid rgba(212,175,55,0.5); overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:16px; font-weight:700; color:var(--gold);
+}
+.podium-avatar img { width:100%; height:100%; object-fit:cover; }
+.podium-rank { font-size:22px; margin-bottom:4px; }
+.podium-name { font-size:10px; font-weight:700; letter-spacing:0.5px; margin-bottom:4px; text-transform:uppercase; }
+.podium-votes { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); font-weight:700; }
+.podium-pct { font-size:9px; color:rgba(240,230,200,0.4); }
+
+.section-title {
+  font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--gold); text-align:center;
+  margin-bottom:14px; display:flex; align-items:center; gap:10px;
+}
+.section-title::before, .section-title::after {
+  content:''; flex:1; height:1px; background:rgba(212,175,55,0.25);
+}
+
+.candidate-row {
+  background:var(--dark3); border:1px solid rgba(212,175,55,0.12);
+  border-radius:8px; padding:10px 14px; margin-bottom:8px;
+  display:flex; align-items:center; gap:12px;
+  animation:fadeIn 0.3s ease forwards; opacity:0;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+.row-rank { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:rgba(240,230,200,0.3); width:24px; text-align:center; flex-shrink:0; }
+.row-rank.top3 { color:var(--gold); }
+.row-avatar {
+  width:38px; height:38px; border-radius:50%; flex-shrink:0;
+  border:1px solid rgba(212,175,55,0.3); overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--gold);
+}
+.row-avatar img { width:100%; height:100%; object-fit:cover; }
+.row-info { flex:1; min-width:0; }
+.row-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+.row-bar { height:3px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+.row-fill { height:100%; background:linear-gradient(90deg,var(--red-bright),var(--gold)); border-radius:2px; transition:width 0.8s ease; }
+.row-votes { font-family:'Cinzel',serif; font-size:15px; color:var(--gold); font-weight:700; flex-shrink:0; text-align:right; }
+.row-pct { font-size:9px; color:rgba(240,230,200,0.4); text-align:right; }
+
+.no-votes { text-align:center; padding:40px 20px; }
+.no-votes-icon { font-size:40px; margin-bottom:12px; }
+.no-votes-title { font-family:'Cinzel',serif; font-size:16px; color:var(--gold); margin-bottom:8px; }
+.no-votes-text { font-size:12px; color:rgba(240,230,200,0.5); line-height:1.8; }
+
+.last-update { text-align:center; font-size:9px; letter-spacing:1px; color:rgba(240,230,200,0.25); padding:12px; }
+
+/* ===== ADMIN SCREEN ===== */
+.admin-content { padding: 20px; max-width: 600px; margin: 0 auto; }
+.info-banner {
+  background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2);
+  border-radius:8px; padding:14px 16px; margin-bottom:20px;
+  font-size:12px; line-height:1.7; color:rgba(240,230,200,0.7);
+}
+.info-banner strong { color:var(--gold); }
+.a-section-title {
+  font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--gold); margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.a-section-title::after { content:''; flex:1; height:1px; background:rgba(212,175,55,0.2); }
+.add-form { background:var(--dark3); border:1px solid rgba(212,175,55,0.2); border-radius:10px; padding:16px; margin-bottom:20px; }
+.input-field {
+  width:100%; background:rgba(255,255,255,0.05);
+  border:1px solid rgba(212,175,55,0.25); border-radius:8px;
+  color:var(--text); padding:12px 14px; font-family:'Raleway',sans-serif;
+  font-size:14px; margin-bottom:10px; outline:none; transition:border-color 0.3s;
+}
+.input-field:focus { border-color:var(--gold); }
+.form-row { display:flex; gap:8px; margin-bottom:10px; }
+.form-row .input-field { margin-bottom:0; }
+.gallery-btn {
+  background:linear-gradient(135deg,#1A3A5C,#0A1A2C);
+  border:1px solid var(--gold); color:var(--gold);
+  padding:12px 14px; font-size:11px; letter-spacing:1px;
+  cursor:pointer; border-radius:8px; white-space:nowrap;
+  font-family:'Raleway',sans-serif; display:inline-block;
+}
+.add-btn {
+  width:100%; background:linear-gradient(135deg,var(--red),#5A0000);
+  border:1px solid var(--gold); color:var(--gold);
+  padding:14px; font-family:'Cinzel',serif; font-size:12px;
+  letter-spacing:2px; cursor:pointer; border-radius:8px; text-transform:uppercase;
+}
+.photo-hint { font-size:10px; color:rgba(240,230,200,0.35); margin-top:6px; line-height:1.6; }
+.candidate-card {
+  background:var(--dark3); border:1px solid rgba(212,175,55,0.15);
+  border-radius:10px; padding:12px 14px; margin-bottom:10px;
+  display:flex; align-items:center; gap:12px;
+}
+.candidate-avatar {
+  width:50px; height:50px; border-radius:50%;
+  border:2px solid rgba(212,175,55,0.4); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:16px; overflow:hidden;
+}
+.candidate-avatar img { width:100%; height:100%; object-fit:cover; }
+.candidate-info { flex:1; min-width:0; }
+.candidate-name { font-weight:700; font-size:14px; margin-bottom:2px; }
+.card-actions { display:flex; gap:6px; flex-shrink:0; flex-direction:column; }
+.edit-btn {
+  background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.4);
+  color:var(--gold); padding:6px 10px; font-size:10px; cursor:pointer;
+  border-radius:6px; font-family:'Raleway',sans-serif;
+}
+.del-btn {
+  background:rgba(192,57,43,0.15); border:1px solid var(--red-bright);
+  color:var(--red-bright); padding:6px 10px; font-size:10px; cursor:pointer;
+  border-radius:6px; font-family:'Raleway',sans-serif;
+}
+.stats-row { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.stat-box {
+  flex:1; min-width:80px; background:var(--dark3);
+  border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:12px; text-align:center;
+}
+.stat-num { font-family:'Cinzel',serif; font-size:22px; color:var(--gold); font-weight:700; }
+.stat-lbl { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:rgba(240,230,200,0.4); }
+.save-toast {
+  position:fixed; bottom:calc(var(--safe-bottom) + 20px); left:50%; transform:translateX(-50%);
+  background:rgba(0,100,0,0.9); border:1px solid #00AA00;
+  color:#00FF00; padding:10px 24px; border-radius:20px;
+  font-size:11px; letter-spacing:1px; display:none; z-index:999;
+}
+
+/* Login */
+#admin-login {
+  padding: 40px 20px;
+  display: flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height: 60vh;
+}
+.login-box {
+  background:var(--dark3); border:1px solid rgba(212,175,55,0.3);
+  border-radius:14px; padding:30px 24px; width:100%; max-width:320px; text-align:center;
+}
+.login-title { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); margin-bottom:4px; }
+.login-sub { font-size:10px; letter-spacing:2px; color:rgba(240,230,200,0.4); margin-bottom:20px; text-transform:uppercase; }
+.login-btn {
+  width:100%; background:linear-gradient(135deg,var(--red),#5A0000);
+  border:1px solid var(--gold); color:var(--gold);
+  padding:14px; font-family:'Cinzel',serif; font-size:12px;
+  letter-spacing:2px; cursor:pointer; border-radius:8px; margin-top:4px;
+}
+.login-error { color:var(--red-bright); font-size:11px; margin-top:8px; display:none; }
+</style>
+</head>
+<body>
+
+<!-- ============ HOME SCREEN ============ -->
+<div id="home-screen" class="screen active">
+  <div class="home-logos">
+    <div class="logo-circle"><img src="/fat-logo.jpeg" alt="FAT"></div>
+    <img src="/amani-logo.jpeg" class="amani-logo" alt="Amani Challenge">
+    <div class="logo-circle"><img src="/fat-logo.jpeg" alt="FAT"></div>
+  </div>
+  <div class="home-title">Fondation AIME TEZA présente</div>
+  <div class="home-tagline">Le Congo se lève pour la paix</div>
+  <div style="font-size:11px;color:rgba(240,230,200,0.55);text-align:center;max-width:300px;line-height:1.8;margin-bottom:8px;padding:0 10px;">
+    Chaque vote aide à soutenir les victimes de la guerre et à porter un message de paix pour le Congo. 🇨🇩🕊️
+  </div>
+  
+  <div class="main-buttons">
+    <button class="main-btn btn-vote" onclick="window.location.href='/vote-firebase'">
+      <span class="btn-icon">🗳️</span>
+      <div class="btn-content">
+        <div class="btn-title">Voter</div>
+        <div class="btn-sub">Soutenir votre candidat • 0.5$ / vote</div>
+      </div>
+    </button>
+    <button class="main-btn btn-classement" onclick="showScreen('classement-screen'); loadClassement();">
+      <span class="btn-icon">📊</span>
+      <div class="btn-content">
+        <div class="btn-title">Classement Live</div>
+        <div class="btn-sub">Résultats officiels en temps réel</div>
+      </div>
+    </button>
+  </div>
+
+  <button class="admin-link" onclick="window.location.href='/admin'">
+    🔐 Espace Administrateur
+  </button>
+
+  <!-- Footer -->
+  <div style="
+    margin-top: 32px;
+    text-align: center;
+    padding: 16px 20px;
+    border-top: 1px solid rgba(212,175,55,0.15);
+    width: 100%;
+    max-width: 360px;
+  ">
+    <div style="font-size:9px;letter-spacing:2px;color:rgba(240,230,200,0.25);text-transform:uppercase;margin-bottom:6px;">Application conçue et développée par</div>
+    <div style="font-family:'Cinzel',serif;font-size:12px;color:rgba(212,175,55,0.7);letter-spacing:1px;margin-bottom:2px;">Shaffy Djuma Daray</div>
+    <div style="font-size:10px;color:rgba(240,230,200,0.35);letter-spacing:1px;margin-bottom:2px;">Coordonnateur — Fondation AIME TEZA Nord-Kivu</div>
+    <div style="font-size:10px;color:rgba(212,175,55,0.4);letter-spacing:1px;">+243 837 168 481</div>
+  </div>
+
+  <!-- Install PWA button -->
+  <button id="install-btn" onclick="installApp()" style="
+    display:none; margin-top:12px;
+    background: linear-gradient(135deg, #D4AF37, #A07820);
+    border: none; color: #0A0A0A;
+    padding: 12px 28px; border-radius: 30px;
+    font-family: 'Cinzel', serif; font-size: 12px;
+    letter-spacing: 2px; cursor: pointer;
+    font-weight: 700; text-transform: uppercase;
+    box-shadow: 0 4px 20px rgba(212,175,55,0.4);
+    animation: fadeUp 0.8s ease 0.7s both;
+  ">
+    ⬇️ Installer l'application
+  </button>
+
+  <!-- iOS install hint -->
+  <div id="ios-hint" style="
+    display:none; margin-top:12px;
+    background: rgba(212,175,55,0.1);
+    border: 1px solid rgba(212,175,55,0.3);
+    border-radius: 12px; padding: 14px 18px;
+    text-align: center; max-width: 320px;
+    animation: fadeUp 0.8s ease 0.7s both;
+  ">
+    <div style="font-size:13px; color:var(--gold); font-weight:700; margin-bottom:6px;">📲 Installer sur iPhone</div>
+    <div style="font-size:11px; color:rgba(240,230,200,0.7); line-height:1.7;">
+      Appuyez sur <strong style="color:var(--gold)">Partager</strong> <span style="font-size:14px;">⬆️</span><br>
+      puis <strong style="color:var(--gold)">"Sur l'écran d'accueil"</strong>
+    </div>
+    <button onclick="document.getElementById('ios-hint').style.display='none'" style="
+      margin-top:10px; background:transparent;
+      border:1px solid rgba(212,175,55,0.3); color:rgba(240,230,200,0.5);
+      padding:6px 16px; border-radius:20px; font-size:10px;
+      cursor:pointer; font-family:'Raleway',sans-serif;
+    ">Compris ✓</button>
+  </div>
+</div>
+
+<!-- ============ VOTE SCREEN ============ -->
+<div id="vote-screen" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('home-screen')">‹</button>
+    <img src="/amani-logo.jpeg" class="topbar-logo" alt="Amani">
+    <div class="topbar-title">Voter</div>
+    <div class="topbar-right"></div>
+  </div>
+  <div class="scroll-content">
+    <div class="vote-container">
+      
+      <div class="vote-info-card">
+        <div class="vote-price">0.5$</div>
+        <div class="vote-price-sub">par voix • soit 1 200 FC • envoyez autant que vous voulez</div>
+        <div style="font-size:11px;color:rgba(240,230,200,0.5);margin-top:6px;">Vous pouvez voter avec n'importe quel montant 💡</div>
+        <div style="font-size:11px;color:rgba(240,230,200,0.5);margin-top:8px;">1 voix = 0.5$ = 1 200 FC • 10 voix = 5$ = 12 000 FC • 100 voix = 50$ = 120 000 FC</div>
+        <div class="payment-methods" id="payment-methods-container">
+          <div class="payment-btn selected" id="airtel-btn" onclick="selectPayment('airtel')">
+            📱 Airtel Money
+            <div class="payment-number" id="airtel-number">—</div>
+          </div>
+          <div class="payment-btn" id="mpesa-btn" onclick="selectPayment('mpesa')">
+            📱 M-Pesa
+            <div class="payment-number" id="mpesa-number">—</div>
+          </div>
+          <div class="payment-btn" id="numero3-btn" onclick="selectPayment('numero3')" style="display:none;">
+🍊 Orange Money
+            <div class="payment-number" id="numero3-number">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vote-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Envoyez <strong>0.5$ (1 200 FC)</strong> ou plus via <strong>Airtel Money</strong> au <strong>0991855345</strong> ou <strong>M-Pesa</strong> au <strong>0837168481</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Notez le <strong>numéro de confirmation</strong> reçu par SMS</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Remplissez le formulaire officiel avec votre numéro de confirmation et choisissez votre candidat</div>
+        </div>
+      </div>
+
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSd0FHQIjvbSiifS_Q4NbMPIgaBp_78BcT2ei-Tsm3Dr0J-6VA/viewform?usp=send_form" target="_blank" class="vote-form-btn">
+        🗳️ Ouvrir le formulaire de vote
+      </a>
+
+      <div style="text-align:center;margin-top:16px;font-size:10px;color:rgba(240,230,200,0.3);letter-spacing:1px;">
+        Chaque vote est vérifié manuellement • Votes frauduleux supprimés
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CLASSEMENT SCREEN ============ -->
+<div id="classement-screen" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('home-screen')">‹</button>
+    <img src="/amani-logo.jpeg" class="topbar-logo" alt="Amani">
+    <div class="topbar-title">Classement Live</div>
+    <div class="topbar-right"></div>
+  </div>
+  <div class="live-strip">
+    <div class="live-dot"></div>
+    <div class="live-text">Live</div>
+    <span style="font-size:9px;color:rgba(240,230,200,0.3);margin-left:6px;">Mise à jour toutes les 60s</span>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-number" id="total-votes">—</div><div class="stat-label">Votes</div></div>
+    <div class="stat"><div class="stat-number" id="nb-candidats">—</div><div class="stat-label">Candidats</div></div>
+    <div class="stat"><div class="stat-number">26</div><div class="stat-label">Provinces</div></div>
+    <div class="stat"><div class="stat-number">1–15</div><div class="stat-label">Août 2026</div></div>
+  </div>
+  <div class="scroll-content">
+    <div class="results-container">
+      <div id="classement-content">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <div class="last-update" id="last-update"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN SCREEN ============ -->
+<div id="admin-screen" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showAdminBack()">‹</button>
+    <img src="/amani-logo.jpeg" class="topbar-logo" alt="Amani">
+    <div class="topbar-title">Admin</div>
+    <div class="topbar-right"></div>
+  </div>
+  <div class="scroll-content">
+    <!-- Login -->
+    <div id="admin-login">
+      <div class="login-box">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;">
+          <div class="logo-circle" style="width:44px;height:44px;"><img src="/fat-logo.jpeg"></div>
+          <img src="/amani-logo.jpeg" style="height:32px;object-fit:contain;">
+        </div>
+        <div class="login-title">Espace Admin</div>
+        <div class="login-sub">Accès réservé</div>
+        <input class="input-field" type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin()">
+        <button class="login-btn" onclick="checkLogin()">Accéder</button>
+        <div class="login-error" id="login-error">❌ Mot de passe incorrect</div>
+      </div>
+    </div>
+
+    <!-- Panel -->
+    <div id="admin-panel" style="display:none;">
+      <div class="admin-content">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-num" id="stat-candidates">0</div><div class="stat-lbl">Candidats</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-votes-admin">—</div><div class="stat-lbl">Votes</div></div>
+          <div class="stat-box"><div class="stat-num">26</div><div class="stat-lbl">Provinces</div></div>
+        </div>
+
+        <div class="info-banner">
+          <strong>Comment ça marche :</strong> Ajoutez le nom exact du candidat (identique au formulaire de vote) + sa photo. La carte publique affiche automatiquement sa photo dans le classement.
+        </div>
+
+        <div class="a-section-title">Numéros de paiement</div>
+        <div class="add-form" style="margin-bottom:20px;">
+          <div style="font-size:11px;color:rgba(240,230,200,0.5);margin-bottom:10px;">Ces numéros apparaissent dans l'écran de vote</div>
+          <input class="input-field" type="text" id="airtel-input" placeholder="📱 Numéro Airtel Money" style="margin-bottom:10px;">
+          <input class="input-field" type="text" id="mpesa-input" placeholder="📱 Numéro M-Pesa" style="margin-bottom:10px;">
+          <input class="input-field" type="text" id="numero3-input" placeholder="🍊 Numéro Orange Money (optionnel)" style="margin-bottom:10px;">
+          <button class="add-btn" onclick="savePaymentNumbers()" style="background:linear-gradient(135deg,#1A3A5C,#0A1A2C);">💾 Enregistrer les numéros</button>
+        </div>
+
+        <div class="a-section-title">Ajouter un candidat</div>
+        <div class="add-form">
+          <div class="form-row">
+            <input class="input-field" type="text" id="new-name" placeholder="Nom exact du candidat" style="margin-bottom:0;">
+            <input class="input-field" type="text" id="new-province" placeholder="Province" style="margin-bottom:0;">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <input class="input-field" type="text" id="new-photo" placeholder="URL photo" style="margin-bottom:0;flex:1;">
+            <label for="photo-upload" class="gallery-btn">📷</label>
+            <input type="file" id="photo-upload" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+          </div>
+          <div id="photo-preview" style="display:none;align-items:center;gap:8px;margin-bottom:8px;">
+            <img id="preview-img" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);">
+            <span style="font-size:10px;color:var(--gold);">✓ Photo sélectionnée</span>
+          </div>
+          <button class="add-btn" onclick="addCandidate()">+ Ajouter le candidat</button>
+          <div class="photo-hint">📷 "📷" = ouvre votre galerie iPhone • 🔗 ou collez un lien URL</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="a-section-title" style="margin-bottom:0;flex:1;">Candidats enregistrés</div>
+          <button onclick="cleanDuplicates()" style="
+            background:transparent;border:1px solid rgba(192,57,43,0.4);
+            color:rgba(192,57,43,0.7);padding:6px 12px;font-size:10px;
+            letter-spacing:1px;cursor:pointer;border-radius:6px;
+            font-family:'Raleway',sans-serif;white-space:nowrap;margin-left:10px;
+          ">🧹 Nettoyer doublons</button>
+        </div>
+        <div id="candidates-list">
+          <div style="text-align:center;padding:30px;color:rgba(240,230,200,0.3);font-size:12px;">
+            Aucun candidat ajouté
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="save-toast">✓ Sauvegardé</div>
+
+<script>
+// ============ CONFIG ============
+const ADMIN_PASSWORD = 'AimeTeza2026';
+const SHEETDB_VOTES = 'https://sheetdb.io/api/v1/6925rremepu91';
+const SHEETDB_CANDIDATS = 'https://sheetdb.io/api/v1/6925rremepu91?sheet=Candidats';
+const SHEETDB_CONFIG = 'https://sheetdb.io/api/v1/6925rremepu91?sheet=Config';
+const CANDIDATE_KEY = 'Choisissez votre candidat';
+// Payment numbers loaded from admin settings
+let AIRTEL_NUMBER = '—';
+let MPESA_NUMBER = '—';
+let NUMERO3 = '';
+const AMOUNT_KEY = 'Montant envoyé';
+// ===============================
+
+let candidates = [];
+let classementTimer = null;
+
+// ============ NAVIGATION ============
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showAdminBack() {
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('pwd-input').value = '';
+  if (classementTimer) { clearInterval(classementTimer); classementTimer = null; }
+  showScreen('home-screen');
+}
+
+// ============ CLASSEMENT ============
+async function loadClassement() {
+  if (classementTimer) clearInterval(classementTimer);
+  await fetchAndRender();
+  classementTimer = setInterval(fetchAndRender, 60000);
+}
+
+async function fetchAndRender() {
+  try {
+    let candidatesMap = {};
+    try {
+      const cRes = await fetch(SHEETDB_CANDIDATS);
+      const cRows = await cRes.json();
+      cRows.forEach(r => {
+        const name = (r['Nom'] || r['nom'] || '').trim();
+        if (name) candidatesMap[name.toLowerCase()] = {
+          photo: r['Photo'] || r['photo'] || '',
+          province: r['Province'] || r['province'] || ''
+        };
+      });
+    } catch(e) {}
+
+    // Use Google Apps Script — unlimited and free
+    const res = await fetch('https://script.google.com/macros/s/AKfycbwB3ZSlJDNEcQ-ZqnHDc1tQJUyRuTdFoAmLHnIW9CF9KSeErCqJvaMHM7Jaw3e7RawT/exec');
+    if (!res.ok) throw new Error('Error');
+    const data = await res.json();
+    const votes = data.votes || {};
+    const total = data.total || 0;
+
+    document.getElementById('total-votes').textContent = total.toLocaleString();
+    const sorted = Object.entries(votes).sort((a,b) => b[1]-a[1]);
+    document.getElementById('nb-candidats').textContent = sorted.length;
+    renderClassement(sorted, total, candidatesMap);
+    const now = new Date();
+    document.getElementById('last-update').textContent = 'Dernière mise à jour : ' + now.toLocaleTimeString('fr-FR');
+  } catch(e) {
+    document.getElementById('classement-content').innerHTML = '<div class="no-votes"><div class="no-votes-icon">⚠️</div><div class="no-votes-title">Connexion impossible</div><div class="no-votes-text">Vérifiez votre connexion internet</div></div>';
+  }
+}
+
+function getInitials(name) { return name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
+function getBg(name) {
+  const colors = ['#8B0000','#5A0020','#1A3A5C','#1A4A2A','#4A1A5C'];
+  let h=0; for(let c of name) h+=c.charCodeAt(0);
+  return colors[h%colors.length];
+}
+
+function makeAvatar(name, photo, size=52) {
+  const bg = getBg(name);
+  const initials = getInitials(name);
+  if (photo) return `<div style="width:${size}px;height:${size}px;border-radius:50%;border:2px solid rgba(212,175,55,0.5);overflow:hidden;flex-shrink:0;"><img src="${photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML='<div style=\'width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;font-family:Cinzel,serif;font-size:${Math.round(size*0.3)}px;color:#D4AF37;\'>${initials}</div>'"></div>`;
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:2px solid rgba(212,175,55,0.4);display:flex;align-items:center;justify-content:center;font-family:Cinzel,serif;font-size:${Math.round(size*0.3)}px;color:#D4AF37;flex-shrink:0;">${initials}</div>`;
+}
+
+function renderClassement(sorted, total, candidatesMap) {
+  if (sorted.length === 0) {
+    document.getElementById('classement-content').innerHTML = `<div class="no-votes"><div class="no-votes-icon">🗳️</div><div class="no-votes-title">Aucun vote pour l'instant</div><div class="no-votes-text">Les votes apparaîtront ici automatiquement<br>dès que les participants commenceront à voter.<br><br>L'événement commence le <strong style="color:var(--gold)">1er Août 2026</strong></div></div>`;
+    return;
+  }
+
+  const maxV = sorted[0][1];
+  const top3 = sorted.slice(0,3);
+  const rest = sorted.slice(3);
+
+  // Podium order: 2nd, 1st, 3rd
+  const pod = [top3[1]||null, top3[0]||null, top3[2]||null];
+  const ranks = ['🥈','🥇','🥉'];
+  const heights = ['140px','180px','120px'];
+
+  let podHTML = '<div class="podium">';
+  pod.forEach((item,i) => {
+    if (!item) return;
+    const pct = ((item[1]/total)*100).toFixed(1);
+    const cInfo = candidatesMap[item[0].toLowerCase()] || {};
+    podHTML += `<div class="podium-item" style="min-height:${heights[i]};animation-delay:${i*0.1}s">
+      ${makeAvatar(item[0], cInfo.photo, 50)}
+      <div class="podium-rank">${ranks[i]}</div>
+      <div class="podium-name">${item[0]}</div>
+      <div class="podium-votes">${item[1].toLocaleString()}</div>
+      <div class="podium-pct">${pct}%</div>
+    </div>`;
+  });
+  podHTML += '</div>';
+
+  let listHTML = '<div class="section-title">Classement Complet</div>';
+  sorted.forEach(([name, voteCount], i) => {
+    const pct = ((voteCount/total)*100).toFixed(1);
+    const barW = ((voteCount/maxV)*100).toFixed(1);
+    const cInfo = candidatesMap[name.toLowerCase()] || {};
+    const delay = Math.min(i*0.04, 1);
+    listHTML += `<div class="candidate-row" style="animation-delay:${delay}s">
+      <div class="row-rank ${i<3?'top3':''}">${i+1}</div>
+      ${makeAvatar(name, cInfo.photo, 38)}
+      <div class="row-info">
+        <div class="row-name">${name}</div>
+        <div class="row-bar"><div class="row-fill" style="width:${barW}%"></div></div>
+      </div>
+      <div><div class="row-votes">${voteCount.toLocaleString()}</div><div class="row-pct">${pct}%</div></div>
+    </div>`;
+  });
+
+  document.getElementById('classement-content').innerHTML = '<div class="section-title">Podium</div>' + podHTML + listHTML;
+}
+
+// ============ ADMIN ============
+// Load payment numbers from SheetDB settings sheet (or localStorage fallback)
+async function loadPaymentNumbers() {
+  try {
+    const res = await fetch('https://sheetdb.io/api/v1/6925rremepu91?sheet=Paramètres');
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      AIRTEL_NUMBER = rows[0]['airtel'] || '';
+      MPESA_NUMBER = rows[0]['mpesa'] || '';
+      NUMERO3 = rows[0]['numero3'] || '';
+    }
+  } catch(e) {
+    // Fallback to localStorage
+    AIRTEL_NUMBER = localStorage.getItem('airtel_number') || '';
+    MPESA_NUMBER = localStorage.getItem('mpesa_number') || '';
+    NUMERO3 = localStorage.getItem('numero3') || '';
+  }
+  updatePaymentDisplay();
+}
+
+function updatePaymentDisplay() {
+  const a = document.getElementById('airtel-number');
+  const m = document.getElementById('mpesa-number');
+  const n3 = document.getElementById('numero3-number');
+  const n3btn = document.getElementById('numero3-btn');
+  if(a) a.textContent = AIRTEL_NUMBER || '—';
+  if(m) m.textContent = MPESA_NUMBER || '—';
+  if(n3) n3.textContent = NUMERO3 || '—';
+  if(n3btn) n3btn.style.display = NUMERO3 ? 'block' : 'none';
+  // Update step text
+  let nums = [];
+  if(AIRTEL_NUMBER) nums.push(`<strong>Airtel Money</strong> : <strong>${AIRTEL_NUMBER}</strong>`);
+  if(MPESA_NUMBER) nums.push(`<strong>M-Pesa</strong> : <strong>${MPESA_NUMBER}</strong>`);
+  if(NUMERO3) nums.push(`<strong>Orange Money</strong> : <strong>${NUMERO3}</strong>`);
+  const stepTexts = document.querySelectorAll('.step-text');
+  if(stepTexts[0]) stepTexts[0].innerHTML = `Envoyez <strong>0.5$ (1 200 FC)</strong> ou plus via ${nums.join(' ou ')}`;
+}
+
+function selectPayment(type) {
+  document.getElementById('airtel-btn').classList.toggle('selected', type==='airtel');
+  document.getElementById('mpesa-btn').classList.toggle('selected', type==='mpesa');
+  document.getElementById('numero3-btn').classList.toggle('selected', type==='numero3');
+}
+
+async function checkLogin() {
+  const entered = document.getElementById('pwd-input').value.trim();
+  if (!entered) return;
+
+  // Show loading
+  document.getElementById('login-error').style.display = 'none';
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = '⏳ Vérification...';
+  btn.disabled = true;
+
+  try {
+    // Fetch password from Google Sheets Config tab
+    const res = await fetch(SHEETDB_CONFIG);
+    const rows = await res.json();
+    // Structure: A1='clé' B1='valeur' (headers)
+    // A2='motdepasse' B2='password' (data)
+    // SheetDB returns: rows[0] = { 'clé': 'motdepasse', 'valeur': 'password' }
+    let correctPassword = '';
+    if (rows && rows.length > 0) {
+      for (const row of rows) {
+        const key = row['clé'] || row['cle'] || row['Clé'] || '';
+        const val = row['valeur'] || row['Valeur'] || '';
+        if (key.toLowerCase() === 'motdepasse') {
+          correctPassword = val;
+          break;
+        }
+      }
+    }
+
+    if (entered === correctPassword) {
+      document.getElementById('admin-login').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      loadCandidates();
+      fetchVoteCount();
+      document.getElementById('airtel-input').value = localStorage.getItem('airtel_number') || '';
+      document.getElementById('mpesa-input').value = localStorage.getItem('mpesa_number') || '';
+      document.getElementById('numero3-input').value = localStorage.getItem('numero3') || '';
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  } catch(e) {
+    // Fallback to hardcoded if Sheets unreachable
+    document.getElementById('login-error').textContent = '⚠️ Erreur de connexion. Réessayez.';
+    document.getElementById('login-error').style.display = 'block';
+  }
+
+  btn.textContent = 'Accéder';
+  btn.disabled = false;
+}
+
+async function loadCandidates() {
+  try {
+    const res = await fetch(SHEETDB_CANDIDATS);
+    const rows = await res.json();
+    candidates = rows.map(r => ({
+      name: r['Nom']||r['nom']||'',
+      province: r['Province']||r['province']||'',
+      photo: r['Photo']||r['photo']||''
+    })).filter(c=>c.name);
+  } catch(e) { candidates = []; }
+  renderCandidates();
+}
+
+async function addCandidate() {
+  const name = document.getElementById('new-name').value.trim();
+  const province = document.getElementById('new-province').value.trim();
+  const photo = document.getElementById('new-photo').value.trim();
+  if (!name) { alert('Le nom est obligatoire'); return; }
+
+  document.getElementById('new-name').value='';
+  document.getElementById('new-province').value='';
+  document.getElementById('new-photo').value='';
+  document.getElementById('photo-preview').style.display='none';
+
+  showSaving('Enregistrement...');
+
+  // Delete ALL existing rows with this name first
+  try {
+    await fetch(SHEETDB_CANDIDATS + '/Nom/' + encodeURIComponent(name), {method:'DELETE'});
+  } catch(e){}
+
+  await new Promise(r => setTimeout(r, 800));
+
+  // Add fresh row
+  try {
+    await fetch(SHEETDB_CANDIDATS, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({data:[{Nom:name, Province:province, Photo:photo}]})
+    });
+  } catch(e){}
+
+  await new Promise(r => setTimeout(r, 500));
+  await loadCandidates();
+  showToast();
+}
+
+
+async function deleteCandidate(index) {
+  if (confirm('Supprimer ce candidat ?')) {
+    const name = candidates[index].name;
+    showSaving('Suppression...');
+    try {
+      await fetch(SHEETDB_CANDIDATS + '/Nom/' + encodeURIComponent(name), {method:'DELETE'});
+    } catch(e){}
+    await new Promise(r => setTimeout(r, 800));
+    await loadCandidates();
+    showToast();
+  }
+}
+
+async function cleanDuplicates() {
+  if (!confirm('Nettoyer les doublons dans Google Sheets ?')) return;
+  showSaving('Nettoyage en cours...');
+  try {
+    const res = await fetch(SHEETDB_CANDIDATS);
+    const rows = await res.json();
+    const seen = {};
+    const toDelete = [];
+    rows.forEach(r => {
+      const name = (r['Nom']||'').trim().toLowerCase();
+      if (!name) return;
+      if (seen[name]) toDelete.push(r['Nom']);
+      else seen[name] = true;
+    });
+    for (const name of toDelete) {
+      try {
+        await fetch(SHEETDB_CANDIDATS + '/Nom/' + encodeURIComponent(name), {method:'DELETE'});
+        await new Promise(r => setTimeout(r, 300));
+      } catch(e){}
+    }
+    await loadCandidates();
+    alert(toDelete.length > 0 ? '✅ ' + toDelete.length + ' doublon(s) supprimé(s) !' : '✅ Aucun doublon trouvé !');
+  } catch(e) {
+    alert('Erreur lors du nettoyage');
+  }
+}
+
+
+function renderCandidates() {
+  document.getElementById('stat-candidates').textContent = candidates.length;
+  const list = document.getElementById('candidates-list');
+  if (candidates.length===0) {
+    list.innerHTML='<div style="text-align:center;padding:30px;color:rgba(240,230,200,0.3);font-size:12px;">Aucun candidat ajouté</div>';
+    return;
+  }
+  list.innerHTML = candidates.map((c,i)=>{
+    const bg = getBg(c.name);
+    const initials = getInitials(c.name);
+    const avatarHtml = c.photo ? `<img src="${c.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '';
+    return `<div class="candidate-card">
+      <div class="candidate-avatar" style="background:${bg}">${avatarHtml}<span style="color:var(--gold);${c.photo?'display:none':''}">${initials}</span></div>
+      <div class="candidate-info">
+        <div class="candidate-name">${c.name}</div>
+        <div style="font-size:10px;color:rgba(240,230,200,0.4);">${c.province||'Province non définie'}</div>
+      </div>
+      <div class="card-actions">
+        <button class="edit-btn" onclick="editCandidate(${i})">✏️ Modifier</button>
+        <button class="del-btn" onclick="deleteCandidate(${i})">🗑️ Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function savePaymentNumbers() {
+  const airtel = document.getElementById('airtel-input').value.trim();
+  const mpesa = document.getElementById('mpesa-input').value.trim();
+  const num3 = document.getElementById('numero3-input').value.trim();
+  if (!airtel && !mpesa && !num3) { alert('Entrez au moins un numéro'); return; }
+  AIRTEL_NUMBER = airtel; localStorage.setItem('airtel_number', airtel);
+  MPESA_NUMBER = mpesa; localStorage.setItem('mpesa_number', mpesa);
+  NUMERO3 = num3; localStorage.setItem('numero3', num3);
+  updatePaymentDisplay();
+  showToast();
+}
+
+async function fetchVoteCount() {
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbwB3ZSlJDNEcQ-ZqnHDc1tQJUyRuTdFoAmLHnIW9CF9KSeErCqJvaMHM7Jaw3e7RawT/exec');
+    const data = await res.json();
+    const total = data.total || 0;
+    document.getElementById('stat-votes-admin').textContent = total.toLocaleString();
+  } catch(e) { document.getElementById('stat-votes-admin').textContent='—'; }
+}
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('new-photo').value = e.target.result;
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('photo-preview').style.display='flex';
+    document.getElementById('photo-preview').style.alignItems='center';
+    document.getElementById('photo-preview').style.gap='8px';
+  };
+  reader.readAsDataURL(file);
+}
+
+function showToast() {
+  const t = document.getElementById('save-toast');
+  t.textContent = '✓ Sauvegardé dans Google Sheets';
+  t.style.background = 'rgba(0,100,0,0.9)';
+  t.style.borderColor = '#00AA00';
+  t.style.color = '#00FF00';
+  t.style.display='block';
+  setTimeout(()=>{t.style.display='none';},2500);
+}
+
+function showSaving(msg) {
+  const t = document.getElementById('save-toast');
+  t.textContent = '⏳ ' + msg;
+  t.style.background = 'rgba(139,0,0,0.9)';
+  t.style.borderColor = 'var(--gold)';
+  t.style.color = 'var(--gold)';
+  t.style.display='block';
+}
+
+// PWA install
+let deferredPrompt = null;
+
+// Désinscrit l'ancien Service Worker qui bloquait les appels API
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+}
+
+// Detect if already installed
+const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+if (!isInstalled) {
+  // Android/Chrome: show install button
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('install-btn').style.display = 'block';
+  });
+
+  // iOS: show hint
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone;
+  if (isIOS) {
+    setTimeout(() => {
+      document.getElementById('ios-hint').style.display = 'block';
+    }, 1500);
+  }
+}
+
+// Hide install button after install
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-btn').style.display = 'none';
+  document.getElementById('ios-hint').style.display = 'none';
+  deferredPrompt = null;
+});
+
+async function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('install-btn').style.display = 'none';
+    }
+    deferredPrompt = null;
+  } else {
+    // iOS fallback
+    document.getElementById('ios-hint').style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

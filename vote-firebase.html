@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amani Challenge — Voter</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #D4AF37;
+  --red: #8B0000;
+  --red-bright: #C0392B;
+  --dark: #0A0A0A;
+  --dark3: #1A1A1A;
+  --text: #F0E6C8;
+  --glow: rgba(212,175,55,0.4);
+  --green: #27AE60;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:#0A0A0A; color:var(--text); font-family:'Raleway',sans-serif; min-height:100vh; }
+
+/* HEADER */
+.vote-header { text-align:center; padding:14px 16px; border-bottom:1px solid rgba(212,175,55,0.2); background:rgba(10,10,10,0.98); position:sticky; top:0; z-index:10; }
+.header-logos { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px; }
+.header-logo { width:40px; height:40px; border-radius:50%; border:2px solid var(--gold); overflow:hidden; }
+.header-logo img { width:100%; height:100%; object-fit:cover; }
+.header-amani { height:32px; object-fit:contain; }
+.peace-msg { font-size:11px; color:rgba(240,230,200,0.65); line-height:1.7; padding:0 20px; }
+
+/* PROGRESS */
+.progress-bar { display:flex; gap:6px; padding:12px 20px; max-width:500px; margin:0 auto; }
+.prog-step { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,0.08); transition:background 0.3s; }
+.prog-step.done { background:var(--gold); }
+.prog-step.active { background:var(--red-bright); }
+
+/* SCREENS */
+.screen { display:none; padding:16px 20px; max-width:500px; margin:0 auto; }
+.screen.active { display:block; }
+
+/* VOTE CLOSED */
+.vote-closed { text-align:center; padding:60px 20px; }
+.closed-icon { font-size:64px; margin-bottom:16px; }
+.closed-title { font-family:'Cinzel',serif; font-size:20px; color:var(--gold); margin-bottom:8px; }
+.closed-sub { font-size:13px; color:rgba(240,230,200,0.5); line-height:1.8; }
+
+/* PAYMENT INFO */
+.pay-card { background:var(--dark3); border:1px solid rgba(212,175,55,0.3); border-radius:14px; padding:20px; margin-bottom:14px; }
+.pay-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:14px; }
+.price-big { font-family:'Cinzel',serif; font-size:36px; color:var(--gold); font-weight:900; text-align:center; margin-bottom:4px; }
+.price-sub { font-size:11px; color:rgba(240,230,200,0.5); text-align:center; margin-bottom:4px; }
+.price-calc { font-size:11px; color:rgba(240,230,200,0.4); text-align:center; margin-bottom:16px; }
+
+.pay-method { background:rgba(255,255,255,0.03); border:1px solid rgba(212,175,55,0.15); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+.pay-method-name { font-size:13px; font-weight:700; color:var(--gold); margin-bottom:4px; }
+.pay-number-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.pay-number { font-family:'Cinzel',serif; font-size:18px; color:white; letter-spacing:1px; }
+.copy-btn { background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.4); color:var(--gold); padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; font-family:'Raleway',sans-serif; white-space:nowrap; transition:all 0.3s; }
+.copy-btn:active { background:rgba(212,175,55,0.3); }
+.copy-btn.copied { background:rgba(39,174,96,0.2); border-color:var(--green); color:var(--green); }
+
+.steps-card { background:var(--dark3); border:1px solid rgba(212,175,55,0.2); border-radius:14px; padding:20px; margin-bottom:14px; }
+.step-row { display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+.step-row:last-child { margin-bottom:0; }
+.step-num { width:32px; height:32px; border-radius:50%; background:var(--red); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:14px; color:var(--gold); font-weight:700; flex-shrink:0; }
+.step-text { font-size:13px; line-height:1.7; color:rgba(240,230,200,0.8); padding-top:4px; }
+.step-text strong { color:var(--gold); }
+
+/* CANDIDATES */
+/* CANDIDATE CARDS — new design */
+.candidate-card {
+  border-radius:16px;
+  overflow:hidden;
+  border:2px solid rgba(212,175,55,0.15);
+  margin-bottom:16px;
+  cursor:pointer;
+  transition:all 0.3s;
+  background:var(--dark3);
+  position:relative;
+}
+.candidate-card:active { transform:scale(0.98); }
+.candidate-card.selected {
+  border-color:var(--gold);
+  box-shadow:0 0 24px rgba(212,175,55,0.35);
+}
+/* Photo zone: fixed height, gradient overlay at bottom */
+.cand-photo-wrap {
+  width:100%;
+  height:300px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.cand-photo-wrap img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:top center;
+  display:block;
+  transition:transform 0.4s;
+}
+.candidate-card.selected .cand-photo-wrap img { transform:scale(1.03); }
+/* Fallback: no photo → colored bg with initials */
+.cand-photo-fallback {
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Cinzel',serif;
+  font-size:64px;
+  font-weight:700;
+  color:rgba(212,175,55,0.6);
+}
+/* Info below photo */
+.cand-info {
+  padding:12px 16px 14px;
+}
+.cand-name {
+  font-family:'Cinzel',serif;
+  font-size:15px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:3px;
+}
+.cand-province {
+  font-size:11px;
+  color:rgba(240,230,200,0.45);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.cand-votes {
+  font-size:11px;
+  color:rgba(212,175,55,0.5);
+  margin-top:4px;
+}
+/* Selected badge top-right */
+.cand-badge {
+  position:absolute;
+  top:12px; right:12px;
+  background:var(--gold);
+  color:#000;
+  font-size:11px;
+  font-weight:700;
+  font-family:'Cinzel',serif;
+  letter-spacing:1px;
+  padding:4px 10px;
+  border-radius:20px;
+  opacity:0;
+  transform:scale(0.8);
+  transition:all 0.25s;
+  z-index:2;
+}
+.candidate-card.selected .cand-badge {
+  opacity:1;
+  transform:scale(1);
+}
+/* Vote button inside card — only visible when selected */
+.cand-vote-btn {
+  display:none;
+  width:calc(100% - 32px);
+  margin:0 16px 16px;
+  padding:14px;
+  background:linear-gradient(135deg, var(--gold), #B8960C);
+  color:#000;
+  font-family:'Cinzel',serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.cand-vote-btn:active { transform:scale(0.97); }
+.candidate-card.selected .cand-vote-btn { display:block; }
+
+/* UPLOAD */
+.upload-zone { border:2px dashed rgba(212,175,55,0.3); border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:all 0.3s; margin-bottom:14px; }
+.upload-zone:hover { border-color:var(--gold); background:rgba(212,175,55,0.03); }
+.upload-icon { font-size:52px; margin-bottom:12px; }
+.upload-title { font-family:'Cinzel',serif; font-size:14px; color:var(--gold); margin-bottom:6px; }
+.upload-sub { font-size:12px; color:rgba(240,230,200,0.5); line-height:1.8; }
+
+.preview-container { display:none; position:relative; margin-bottom:14px; }
+.preview-img { width:100%; border-radius:12px; border:2px solid var(--gold); max-height:350px; object-fit:contain; }
+.change-btn { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.85); border:1px solid var(--gold); color:var(--gold); padding:6px 14px; border-radius:6px; font-size:11px; cursor:pointer; }
+
+.ai-box { background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.15); border-radius:10px; padding:14px; margin-bottom:14px; display:none; }
+.ai-loading { display:flex; align-items:center; gap:10px; }
+.ai-spinner { width:18px; height:18px; border:2px solid rgba(212,175,55,0.3); border-top-color:var(--gold); border-radius:50%; animation:spin 1s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.ai-lbl { font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px; color:var(--gold); }
+.ai-row { display:flex; justify-content:space-between; padding:5px 0; font-size:12px; border-bottom:1px solid rgba(255,255,255,0.04); }
+.ai-row:last-child { border:none; }
+.ai-key { color:rgba(240,230,200,0.5); }
+.ai-val { color:var(--gold); font-weight:700; }
+.ai-ok { color:var(--green); font-size:12px; margin-top:8px; }
+.ai-err { color:var(--red-bright); font-size:12px; margin-top:8px; }
+
+/* SUMMARY */
+.summary-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px; }
+.summary-row:last-child { border:none; }
+.summary-key { color:rgba(240,230,200,0.5); }
+.summary-val { color:var(--gold); font-weight:700; }
+.votes-badge { display:inline-block; background:rgba(212,175,55,0.12); border:1px solid var(--gold); border-radius:20px; padding:8px 20px; font-family:'Cinzel',serif; font-size:20px; color:var(--gold); margin:12px 0; }
+
+/* BUTTONS */
+.btn-primary { width:100%; background:linear-gradient(135deg,var(--red),#5A0000); border:1px solid var(--gold); color:var(--gold); padding:16px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; cursor:pointer; border-radius:10px; text-transform:uppercase; transition:all 0.3s; margin-top:8px; }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-secondary { width:100%; background:transparent; border:1px solid rgba(212,175,55,0.2); color:rgba(240,230,200,0.5); padding:12px; font-family:'Raleway',sans-serif; font-size:12px; cursor:pointer; border-radius:10px; margin-top:8px; }
+
+.card { background:var(--dark3); border:1px solid rgba(212,175,55,0.2); border-radius:12px; padding:16px; margin-bottom:14px; }
+.card-title { font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.card-title::after { content:''; flex:1; height:1px; background:rgba(212,175,55,0.2); }
+
+/* SUCCESS */
+.success-screen { display:none; text-align:center; padding:50px 20px; }
+.success-icon { font-size:72px; margin-bottom:16px; animation:pop 0.5s ease; }
+@keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.success-title { font-family:'Cinzel',serif; font-size:22px; color:var(--gold); margin-bottom:8px; }
+.success-sub { font-size:13px; color:rgba(240,230,200,0.6); line-height:1.8; margin-bottom:20px; }
+
+.error-box { background:rgba(139,0,0,0.2); border:1px solid var(--red-bright); border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px; color:rgba(240,230,200,0.8); display:none; }
+
+/* LOADING */
+.loading-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:100; }
+.loading-overlay.active { display:flex; }
+.big-spinner { width:52px; height:52px; border:4px solid rgba(212,175,55,0.2); border-top-color:var(--gold); border-radius:50%; animation:spin 1s linear infinite; }
+.loading-text { font-family:'Cinzel',serif; font-size:13px; color:var(--gold); letter-spacing:2px; text-align:center; padding:0 20px; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="big-spinner"></div>
+  <div class="loading-text" id="loading-text">Traitement...</div>
+</div>
+
+<div class="vote-header">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <button onclick="window.location.href='/'" style="background:transparent;border:1px solid rgba(212,175,55,0.3);color:var(--gold);width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+    <div class="header-logos" style="margin:0;">
+      <div class="header-logo"><img src="/fat-logo.jpeg" alt="FAT"></div>
+      <img src="/amani-logo.jpeg" class="header-amani" alt="Amani Challenge">
+      <div class="header-logo"><img src="/fat-logo.jpeg" alt="FAT"></div>
+    </div>
+    <div style="width:36px;"></div>
+  </div>
+  <div class="peace-msg">Chaque vote aide à soutenir les victimes de la guerre<br>et à porter un message de paix pour le Congo. 🇨🇩🕊️</div>
+</div>
+
+<div class="progress-bar" id="progress-bar">
+  <div class="prog-step active" id="prog-1"></div>
+  <div class="prog-step" id="prog-2"></div>
+  <div class="prog-step" id="prog-3"></div>
+</div>
+
+<!-- VOTE CLOSED -->
+<div id="vote-closed-screen" style="display:none;padding:20px;max-width:500px;margin:0 auto;">
+  <div class="vote-closed">
+    <div class="closed-icon">🔒</div>
+    <div class="closed-title">Vote pas encore ouvert</div>
+    <div class="closed-sub">Le vote sera ouvert prochainement.<br>En attendant, découvrez les candidats ci-dessous.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Les Candidats</div>
+    <div id="candidates-preview"></div>
+  </div>
+</div>
+
+<!-- STEP 1: PAYMENT + CANDIDATE -->
+<div class="screen active" id="step-1">
+  
+  <!-- Payment info -->
+  <div class="pay-card">
+    <div class="pay-title">💰 Comment voter</div>
+    <div class="price-big">0.5$</div>
+    <div class="price-sub">par voix — soit 1 200 FC</div>
+    <div class="price-calc">1 200 FC = 1 voix • 6 000 FC = 5 voix • 12 000 FC = 10 voix</div>
+    <div class="price-calc" style="margin-bottom:16px;">Envoyez le montant que vous voulez !</div>
+
+    <div id="payment-methods">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+
+  <!-- Steps explanation -->
+  <div class="steps-card">
+    <div class="pay-title">📋 Étapes pour voter</div>
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-text">Envoyez <strong>1 200 FC (0.5$)</strong> ou plus au numéro Mobile Money de votre opérateur ci-dessus. Copiez le numéro directement !</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-text">Après le paiement, vous recevez un <strong>SMS de confirmation</strong>. Faites une <strong>capture d'écran</strong> de ce SMS — c'est votre preuve de paiement.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-text">Choisissez votre <strong>candidat favori</strong> ci-dessous puis continuez pour uploader votre capture et valider votre vote.</div>
+    </div>
+  </div>
+
+  <!-- Candidates -->
+  <div class="card">
+    <div class="card-title">Choisissez votre candidat</div>
+    <div id="candidates-list">
+      <div style="text-align:center;padding:30px;color:rgba(240,230,200,0.3);">
+        <div style="font-size:32px;margin-bottom:10px;">⏳</div>Chargement...
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- STEP 2: UPLOAD CAPTURE -->
+<div class="screen" id="step-2">
+  <div class="card">
+    <div class="card-title">2 — Uploadez votre capture SMS</div>
+    <div style="font-size:12px;color:rgba(240,230,200,0.6);margin-bottom:14px;line-height:1.8;">
+      📸 Uploadez la <strong style="color:var(--gold)">capture d'écran</strong> du SMS de confirmation reçu après votre paiement Mobile Money.
+    </div>
+    <div class="upload-zone" id="upload-zone" onclick="triggerFileInput()">
+      <div class="upload-icon">📸</div>
+      <div class="upload-title">Uploader votre capture SMS</div>
+      <div class="upload-sub">Appuyez pour ouvrir votre galerie<br>et sélectionner votre capture d'écran</div>
+    </div>
+    <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)" style="display:none">
+    <div class="preview-container" id="preview-container">
+      <img id="preview-img" class="preview-img" src="" alt="">
+      <button class="change-btn" onclick="resetPhoto()">Changer</button>
+    </div>
+    <div class="ai-box" id="ai-box">
+      <div class="ai-loading" id="ai-loading">
+        <div class="ai-spinner"></div>
+        <div class="ai-lbl">🤖 Analyse IA en cours...</div>
+      </div>
+      <div id="ai-results" style="display:none;">
+        <div class="ai-row"><span class="ai-key">Montant</span><span class="ai-val" id="r-montant">—</span></div>
+        <div class="ai-row"><span class="ai-key">Opérateur</span><span class="ai-val" id="r-operateur">—</span></div>
+        <div class="ai-row"><span class="ai-key">Destinataire</span><span class="ai-val" id="r-numero">—</span></div>
+        <div class="ai-row"><span class="ai-key">Référence</span><span class="ai-val" id="r-reference">—</span></div>
+        <div id="r-verdict"></div>
+      </div>
+    </div>
+    <div class="error-box" id="error-2"></div>
+  </div>
+  <button class="btn-primary" id="btn-step2" onclick="goStep3()" disabled>Valider →</button>
+  <button class="btn-secondary" onclick="setStep(1)">← Retour</button>
+</div>
+
+<!-- STEP 3: CONFIRM -->
+<div class="screen" id="step-3">
+  <div class="card">
+    <div class="card-title">3 — Confirmation</div>
+    <div id="summary-content"></div>
+    <div class="votes-badge" id="votes-badge">⚡ — voix</div>
+  </div>
+  <div class="error-box" id="error-3"></div>
+  <button class="btn-primary" onclick="submitVote()">✅ Confirmer mon vote</button>
+  <button class="btn-secondary" onclick="setStep(2)">← Retour</button>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">Vote soumis !</div>
+  <div class="success-sub">Votre vote a été enregistré avec succès.<br>Il sera vérifié et validé très bientôt.<br>🕊️ Merci de voter pour la paix !</div>
+  <div class="card" id="success-summary" style="text-align:left;margin-bottom:16px;"></div>
+  <button class="btn-primary" onclick="window.location.href='/'">📊 Voir le classement</button>
+  <button class="btn-secondary" onclick="resetAll()">Voter à nouveau</button>
+</div>
+
+<script>
+// ===== CONFIG =====
+const CLOUDINARY_CLOUD = 'dg7pbnnwq';
+const CLOUDINARY_PRESET = 'amanichallenge2026';
+const SHEETDB_CANDIDATS = 'https://sheetdb.io/api/v1/6925rremepu91?sheet=Candidats';
+const SHEETDB_CONFIG = 'https://sheetdb.io/api/v1/6925rremepu91?sheet=Config';
+const FIRESTORE_URL = 'https://firestore.googleapis.com/v1/projects/fondation-aime-teza-4453d/databases/(default)/documents/votes_amani';
+const FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/fondation-aime-teza-4453d/databases/(default)/documents';
+const FIRESTORE_CONFIG_URL = FIRESTORE_BASE + '/amani_config/parametres';
+const FIRESTORE_CANDIDATS_URL = FIRESTORE_BASE + '/amani_candidats';
+// ==================
+
+let selectedCandidate = null;
+let selectedFile = null;
+let aiData = null;
+let officialNumbers = {};
+let voteIsOpen = true;
+
+// INIT
+async function init() {
+  await loadConfig();
+  await loadCandidates();
+  loadPaymentMethods();
+}
+
+async function loadConfig() {
+  try {
+    const res = await fetch(FIRESTORE_CONFIG_URL);
+    const doc = await res.json();
+    const f = doc.fields || {};
+    if (f.airtel) officialNumbers.airtel = f.airtel.stringValue;
+    if (f.mpesa) officialNumbers.mpesa = f.mpesa.stringValue;
+    if (f.orange) officialNumbers.orange = f.orange.stringValue;
+    if (f.vote_ouvert) voteIsOpen = f.vote_ouvert.stringValue.toLowerCase() !== 'non';
+  } catch(e) { voteIsOpen = true; }
+  if (!voteIsOpen) {
+    document.getElementById('progress-bar').style.display = 'none';
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('vote-closed-screen').style.display = 'block';
+    // Load candidates for preview
+    await loadCandidates();
+  }
+}
+
+function loadPaymentMethods() {
+  const container = document.getElementById('payment-methods');
+  const methods = [
+    { name: '📱 Airtel Money', key: 'airtel', emoji: '📱' },
+    { name: '📱 M-Pesa', key: 'mpesa', emoji: '📱' },
+    { name: '🍊 Orange Money', key: 'orange', emoji: '🍊' }
+  ];
+  
+  container.innerHTML = methods.map(m => {
+    const num = officialNumbers[m.key] || '';
+    if (!num) return '';
+    const numClean = num.replace(/\s/g, '');
+    return `<div class="pay-method">
+      <div class="pay-method-name">${m.name}</div>
+      <div class="pay-number-row">
+        <div class="pay-number">${num}</div>
+        <button class="copy-btn" onclick="copyNumber('${numClean}', this)">📋 Copier</button>
+      </div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;font-size:12px;color:rgba(240,230,200,0.4);padding:10px;">Numéros bientôt disponibles</div>';
+}
+
+function copyNumber(num, btn) {
+  navigator.clipboard.writeText(num).then(() => {
+    btn.textContent = '✅ Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copier';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+const REMOVEBG_API_KEY = '9eMVxVww362BcSSUFBoY6Lvm';
+
+// Cache pour éviter d'appeler remove.bg deux fois pour le même candidat
+const removebgCache = {};
+
+async function getPhotoNoBg(photoUrl) {
+  if (!photoUrl) return null;
+  if (removebgCache[photoUrl]) return removebgCache[photoUrl];
+  try {
+    const formData = new FormData();
+    formData.append('image_url', photoUrl);
+    formData.append('size', 'auto');
+    const res = await fetch('https://api.remove.bg/v1.0/removebg', {
+      method: 'POST',
+      headers: { 'X-Api-Key': REMOVEBG_API_KEY },
+      body: formData
+    });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    removebgCache[photoUrl] = objectUrl;
+    return objectUrl;
+  } catch(e) {
+    console.warn('remove.bg error:', e);
+    return null;
+  }
+}
+
+async function loadCandidates() {
+  const targetId = voteIsOpen ? 'candidates-list' : 'candidates-preview';
+  try {
+    const res = await fetch(FIRESTORE_CANDIDATS_URL + '?pageSize=50');
+    const data = await res.json();
+    const gradients = [
+      'linear-gradient(160deg,#3a0000 0%,#8B0000 60%,#c0392b 100%)',
+      'linear-gradient(160deg,#0a1628 0%,#1A3A5C 60%,#2980b9 100%)',
+      'linear-gradient(160deg,#0a1f0f 0%,#1A4A2A 60%,#27ae60 100%)',
+      'linear-gradient(160deg,#1a0a2e 0%,#4A1A5C 60%,#8e44ad 100%)',
+      'linear-gradient(160deg,#1f1005 0%,#5C3A1A 60%,#e67e22 100%)',
+      'linear-gradient(160deg,#0e0a1f 0%,#3A1A5C 60%,#6c3483 100%)',
+    ];
+    const docs = data.documents || [];
+
+    if (docs.length === 0) {
+      document.getElementById(targetId).innerHTML = '<div style="text-align:center;padding:20px;color:rgba(240,230,200,0.4);font-size:12px;">Candidats bientôt disponibles</div>';
+      return;
+    }
+
+    // Render cards first with original photos, then swap with no-bg version
+    const cardData = docs.map((doc, i) => {
+      const f = doc.fields || {};
+      const name = f.nom ? f.nom.stringValue : '';
+      const province = f.province ? f.province.stringValue : '';
+      const photo = f.photo ? f.photo.stringValue : '';
+      if (!name) return null;
+      const grad = gradients[i % gradients.length];
+      const initials = name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+      return { name, province, photo, grad, initials, index: i };
+    }).filter(Boolean);
+
+    // Build initial HTML with original photos
+    const html = cardData.map(({ name, province, photo, grad, initials, index }) => {
+      const clickHandler = voteIsOpen ? `onclick="selectCandidate('${name}','${province}','${photo}')"` : '';
+      const photoEl = photo
+        ? `<img id="cphoto-${index}" src="${photo}" style="width:100%;height:100%;object-fit:cover;object-position:top center;">`
+        : `<div class="cand-photo-fallback">${initials}</div>`;
+      return `<div class="candidate-card" ${clickHandler} data-name="${name}" data-province="${province}">
+        <div class="cand-photo-wrap" style="background:${grad}">${photoEl}</div>
+        <span class="cand-badge">✓ Sélectionné</span>
+        <div class="cand-info">
+          <div class="cand-name">${name}</div>
+          <div class="cand-province">${province}</div>
+          ${voteIsOpen ? `<div class="cand-votes" id="votes-${index}">— votes</div>` : ''}
+        </div>
+        ${voteIsOpen ? `<button class="cand-vote-btn" onclick="event.stopPropagation(); goStep2()">Voter pour ce candidat →</button>` : ''}
+      </div>`;
+    }).join('');
+
+    document.getElementById(targetId).innerHTML = html || '<div style="text-align:center;padding:20px;color:rgba(240,230,200,0.4);font-size:12px;">Candidats bientôt disponibles</div>';
+
+    // Now async swap photos with no-bg versions
+    cardData.forEach(async ({ photo, index }) => {
+      if (!photo) return;
+      const noBgUrl = await getPhotoNoBg(photo);
+      if (noBgUrl) {
+        const imgEl = document.getElementById('cphoto-' + index);
+        if (imgEl) {
+          imgEl.style.objectFit = 'contain';
+          imgEl.style.objectPosition = 'bottom center';
+          imgEl.src = noBgUrl;
+        }
+      }
+    });
+
+  } catch(e) {
+    console.error('loadCandidates error:', e);
+    document.getElementById(targetId).innerHTML = '<div style="text-align:center;padding:20px;color:rgba(240,230,200,0.4);font-size:12px;">Erreur chargement candidats</div>';
+  }
+}
+
+
+async function analyzeImage(dataUrl, file) {
+  document.getElementById('ai-box').style.display = 'block';
+  document.getElementById('ai-loading').style.display = 'flex';
+  document.getElementById('ai-results').style.display = 'none';
+  document.getElementById('btn-step2').disabled = true;
+
+  const nums = Object.values(officialNumbers).filter(n=>n).join(', ');
+
+  try {
+    const base64 = dataUrl.split(',')[1];
+
+    // Normalize media_type — Claude only supports jpeg, png, gif, webp
+    let mediaType = (file.type || 'image/jpeg').toLowerCase();
+    if (!['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType)) {
+      mediaType = 'image/jpeg'; // fallback for heic/heif/etc
+    }
+
+    const response = await fetch('/.netlify/functions/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{role:'user', content:[
+          {type:'image', source:{type:'base64', media_type: mediaType, data:base64}},
+          {type:'text', text:'Analyse ce reçu ou SMS de paiement Mobile Money RDC. Réponds UNIQUEMENT en JSON valide sans texte avant ou après, sans backticks: {"montant_fc":<nombre entier en FC, convertis les $ en FC si besoin: 1$=2800FC, 0 si absent>,"operateur":"<Airtel Money ou M-Pesa ou Orange Money ou Inconnu>","numero_destinataire":"<numéro ou nom destinataire>","reference":"<code référence ou numéro reçu>","est_valide":<true si c est un reçu ou SMS de paiement réel, sinon false>}. Numéros officiels: ' + (nums||'Non configurés')}
+        ]}]
+      })
+    });
+
+    const data = await response.json();
+    console.log('AI raw response:', JSON.stringify(data));
+
+    if (data.error) throw new Error('API: ' + data.error.message);
+    if (!data.content || !data.content[0]) throw new Error('Réponse vide');
+
+    const rawText = data.content[0].text.replace(/```json|```/g,'').trim();
+    console.log('AI text:', rawText);
+
+    // Extract JSON even if there's extra text
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSON non trouvé dans: ' + rawText);
+    aiData = JSON.parse(jsonMatch[0]);
+
+    document.getElementById('ai-loading').style.display = 'none';
+    document.getElementById('ai-results').style.display = 'block';
+
+    // Affichage montant : si en FC affiche FC, si en $ convertit
+    const montantFC = parseInt(aiData.montant_fc) || 0;
+    document.getElementById('r-montant').textContent = montantFC > 0
+      ? `${montantFC.toLocaleString()} FC (~${(montantFC/2800).toFixed(1)}$)`
+      : 'Non détecté';
+    document.getElementById('r-operateur').textContent = aiData.operateur || 'Inconnu';
+    document.getElementById('r-numero').textContent = aiData.numero_destinataire || 'Non détecté';
+    document.getElementById('r-reference').textContent = aiData.reference || 'Non détecté';
+
+    const numList = Object.values(officialNumbers).filter(n=>n).map(n=>n.replace(/\s/g,''));
+    const numOk = numList.length === 0 || numList.some(n => (aiData.numero_destinataire||'').replace(/\s/g,'').includes(n));
+
+    if (!aiData.est_valide) {
+      document.getElementById('r-verdict').innerHTML = '<div class="ai-err">❌ Ce ne semble pas être un reçu de paiement valide</div>';
+      document.getElementById('btn-step2').disabled = true;
+    } else if (numList.length > 0 && !numOk) {
+      document.getElementById('r-verdict').innerHTML = '<div class="ai-err">❌ Numéro destinataire invalide — envoyez aux numéros officiels ci-dessus</div>';
+      document.getElementById('btn-step2').disabled = true;
+    } else {
+      document.getElementById('r-verdict').innerHTML = '<div class="ai-ok">✅ Capture validée — continuez !</div>';
+      document.getElementById('btn-step2').disabled = false;
+    }
+  } catch(e) {
+    console.error('analyzeImage error:', e);
+    document.getElementById('ai-loading').style.display = 'none';
+    document.getElementById('ai-results').style.display = 'block';
+    document.getElementById('r-verdict').innerHTML = `<div style="font-size:11px;color:rgba(240,230,200,0.4);">⚠️ Analyse IA indisponible (${e.message}) — vote vérifié manuellement</div>`;
+    document.getElementById('btn-step2').disabled = false;
+  }
+}
+
+function triggerFileInput() {
+  const input = document.getElementById('file-input');
+  input.value = ''; // reset so same file can be re-selected
+  input.click();
+}
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  selectedFile = file;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    // Show preview
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('preview-container').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+    // Launch AI analysis
+    analyzeImage(dataUrl, file);
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetPhoto() {
+  selectedFile = null;
+  aiData = null;
+  document.getElementById('preview-img').src = '';
+  document.getElementById('preview-container').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('ai-box').style.display = 'none';
+  document.getElementById('btn-step2').disabled = true;
+  document.getElementById('file-input').value = '';
+}
+
+// Bug 1 fix: selectCandidate was called but never defined
+function selectCandidate(name, province, photo) {
+  selectedCandidate = { name, province, photo };
+  document.querySelectorAll('.candidate-card').forEach(card => {
+    card.classList.remove('selected');
+    if (card.dataset.name === name) card.classList.add('selected');
+  });
+}
+
+function setStep(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  // Update progress bar
+  document.querySelectorAll('.prog-step').forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+  window.scrollTo(0, 0);
+}
+
+function goStep2() {
+  if (!selectedCandidate) return;
+  setStep(2);
+}
+
+function goStep3() {
+  const fc = parseInt(aiData?.montant_fc) || 1200;
+  const voix = Math.max(1, Math.floor(fc / 1200));
+  document.getElementById('summary-content').innerHTML = `
+    <div class="summary-row"><span class="summary-key">Candidat</span><span class="summary-val">${selectedCandidate.name}</span></div>
+    <div class="summary-row"><span class="summary-key">Province</span><span class="summary-val">${selectedCandidate.province||'—'}</span></div>
+    <div class="summary-row"><span class="summary-key">Montant</span><span class="summary-val">${fc.toLocaleString()} FC</span></div>
+    <div class="summary-row"><span class="summary-key">Opérateur</span><span class="summary-val">${aiData?.operateur||'À vérifier'}</span></div>
+    <div class="summary-row"><span class="summary-key">Référence</span><span class="summary-val">${aiData?.reference||'À vérifier'}</span></div>
+  `;
+  document.getElementById('votes-badge').textContent = `⚡ ${voix} voix`;
+  setStep(3);
+}
+
+async function submitVote() {
+  showLoading('Upload de la capture...');
+  try {
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('folder', 'amani_votes');
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {method:'POST',body:formData});
+    const uploadData = await uploadRes.json();
+    const imageUrl = uploadData.secure_url;
+
+    updateLoading('Enregistrement du vote...');
+    const fc = parseInt(aiData?.montant_fc) || 1200;
+    const voix = Math.max(1, Math.floor(fc / 1200));
+
+    await fetch(FIRESTORE_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({fields:{
+        candidat:{stringValue:selectedCandidate.name},
+        province:{stringValue:selectedCandidate.province||''},
+        montant_fc:{integerValue:fc},
+        voix:{integerValue:voix},
+        operateur:{stringValue:aiData?.operateur||''},
+        numero_destinataire:{stringValue:aiData?.numero_destinataire||''},
+        reference:{stringValue:aiData?.reference||'REF_'+Date.now()},
+        capture_url:{stringValue:imageUrl},
+        statut:{stringValue:'en_attente'},
+        timestamp:{stringValue:new Date().toISOString()},
+        ai_valide:{booleanValue:aiData?.est_valide||false}
+      }})
+    });
+
+    hideLoading();
+    document.getElementById('success-summary').innerHTML = `
+      <div class="summary-row"><span class="summary-key">Candidat</span><span class="summary-val">${selectedCandidate.name}</span></div>
+      <div class="summary-row"><span class="summary-key">Voix</span><span class="summary-val">${voix} voix</span></div>
+      <div class="summary-row"><span class="summary-key">Statut</span><span class="summary-val" style="color:var(--green)">✅ Soumis</span></div>
+    `;
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('progress-bar').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    window.scrollTo(0,0);
+  } catch(e) {
+    hideLoading();
+    const err = document.getElementById('error-3');
+    err.textContent = '❌ Erreur. Vérifiez votre connexion et réessayez.';
+    err.style.display = 'block';
+  }
+}
+
+function resetAll() {
+  selectedCandidate=null; selectedFile=null; aiData=null;
+  document.querySelectorAll('.candidate-card').forEach(c=>c.classList.remove('selected'));
+  resetPhoto();
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('progress-bar').style.display = 'flex';
+  setStep(1);
+}
+
+function showLoading(t) { document.getElementById('loading-text').textContent=t; document.getElementById('loading-overlay').classList.add('active'); }
+function updateLoading(t) { document.getElementById('loading-text').textContent=t; }
+function hideLoading() { document.getElementById('loading-overlay').classList.remove('active'); }
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Amani Challenge — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #D4AF37;
+  --gold-light: #F5D87A;
+  --red: #8B0000;
+  --red-bright: #C0392B;
+  --dark: #0A0A0A;
+  --dark3: #1A1A1A;
+  --dark4: #222222;
+  --text: #F0E6C8;
+  --glow: rgba(212,175,55,0.4);
+  --green: #27AE60;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:#0A0A0A; color:var(--text); font-family:'Raleway',sans-serif; min-height:100vh; }
+
+/* LOGIN */
+#login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+.login-box { background:var(--dark3); border:1px solid rgba(212,175,55,0.3); border-radius:14px; padding:32px 24px; width:100%; max-width:340px; text-align:center; }
+.login-title { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); margin-bottom:4px; }
+.login-sub { font-size:10px; letter-spacing:2px; color:rgba(240,230,200,0.4); margin-bottom:20px; text-transform:uppercase; }
+.input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(212,175,55,0.25); border-radius:8px; color:var(--text); padding:12px 14px; font-family:'Raleway',sans-serif; font-size:14px; margin-bottom:10px; outline:none; transition:border-color 0.3s; }
+.input-field:focus { border-color:var(--gold); }
+.login-btn { width:100%; background:linear-gradient(135deg,var(--red),#5A0000); border:1px solid var(--gold); color:var(--gold); padding:14px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; cursor:pointer; border-radius:8px; }
+.login-error { color:var(--red-bright); font-size:11px; margin-top:8px; display:none; }
+.login-loading { color:var(--gold); font-size:11px; margin-top:8px; display:none; }
+
+/* TOPBAR */
+.topbar { background:rgba(10,10,10,0.98); border-bottom:1px solid rgba(212,175,55,0.2); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar-title { font-family:'Cinzel',serif; font-size:13px; color:var(--gold); letter-spacing:2px; }
+.logout-btn { background:transparent; border:1px solid rgba(212,175,55,0.2); color:rgba(240,230,200,0.4); padding:6px 12px; font-size:10px; cursor:pointer; border-radius:4px; font-family:'Raleway',sans-serif; }
+
+/* TABS */
+.tabs { display:flex; border-bottom:1px solid rgba(212,175,55,0.15); background:rgba(10,10,10,0.9); position:sticky; top:49px; z-index:99; }
+.tab { flex:1; padding:12px 8px; text-align:center; font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:rgba(240,230,200,0.4); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.3s; }
+.tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* CONTENT */
+.tab-content { display:none; padding:16px; max-width:700px; margin:0 auto; }
+.tab-content.active { display:block; }
+
+/* STATS */
+.stats-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.stat-box { flex:1; min-width:80px; background:var(--dark3); border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:12px; text-align:center; }
+.stat-num { font-family:'Cinzel',serif; font-size:22px; color:var(--gold); font-weight:700; }
+.stat-lbl { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:rgba(240,230,200,0.4); }
+
+/* SECTION TITLE */
+.sec-title { font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.sec-title::after { content:''; flex:1; height:1px; background:rgba(212,175,55,0.2); }
+
+/* PAYMENT NUMBERS */
+.pay-form { background:var(--dark3); border:1px solid rgba(212,175,55,0.2); border-radius:10px; padding:16px; margin-bottom:16px; }
+.pay-hint { font-size:11px; color:rgba(240,230,200,0.4); margin-bottom:10px; }
+.pay-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.pay-label { font-size:12px; width:90px; flex-shrink:0; color:rgba(240,230,200,0.7); }
+.save-pay-btn { width:100%; background:linear-gradient(135deg,#1A3A5C,#0A1A2C); border:1px solid var(--gold); color:var(--gold); padding:12px; font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; cursor:pointer; border-radius:8px; margin-top:8px; }
+
+/* PROVINCES GRID */
+.provinces-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:12px; }
+.province-card { background:var(--dark3); border:1px solid rgba(212,175,55,0.15); border-radius:10px; padding:14px; display:flex; gap:14px; align-items:center; transition:border-color 0.3s; }
+.province-card.has-candidate { border-color:rgba(212,175,55,0.4); }
+.province-card.has-candidate .prov-num { background:var(--red); }
+
+.photo-frame { width:60px; height:60px; border-radius:50%; border:2px dashed rgba(212,175,55,0.3); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; overflow:hidden; position:relative; transition:border-color 0.3s; background:var(--dark4); }
+.photo-frame:hover { border-color:var(--gold); }
+.photo-frame img { width:100%; height:100%; object-fit:cover; }
+.photo-frame.has-photo { border-style:solid; border-color:var(--gold); }
+.photo-upload-input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+.prov-info { flex:1; min-width:0; }
+.prov-num { display:inline-block; background:rgba(212,175,55,0.15); border-radius:4px; padding:2px 8px; font-family:'Cinzel',serif; font-size:10px; color:var(--gold); margin-bottom:4px; }
+.prov-name { font-size:11px; color:rgba(240,230,200,0.5); margin-bottom:6px; }
+.prov-input { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(212,175,55,0.2); border-radius:6px; color:var(--text); padding:8px 10px; font-family:'Raleway',sans-serif; font-size:12px; outline:none; transition:border-color 0.3s; }
+.prov-input:focus { border-color:var(--gold); }
+.prov-input.filled { border-color:rgba(212,175,55,0.5); }
+.save-prov-btn { margin-top:6px; width:100%; background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.3); color:var(--gold); padding:6px; font-size:10px; letter-spacing:1px; cursor:pointer; border-radius:6px; font-family:'Cinzel',serif; transition:all 0.3s; }
+.save-prov-btn:hover { background:rgba(212,175,55,0.2); }
+.saved-badge { display:none; font-size:10px; color:var(--green); margin-top:4px; text-align:center; }
+
+/* VOTES LIST */
+.vote-card { background:var(--dark3); border:1px solid rgba(212,175,55,0.12); border-radius:10px; padding:14px; margin-bottom:10px; }
+.vote-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.vote-candidat { font-weight:700; font-size:14px; color:var(--gold); }
+.vote-voix { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); }
+.vote-details { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+.vote-detail { font-size:11px; }
+.vote-key { color:rgba(240,230,200,0.4); }
+.vote-val { color:var(--text); font-weight:600; }
+.vote-capture { width:100%; border-radius:8px; border:1px solid rgba(212,175,55,0.2); max-height:200px; object-fit:contain; cursor:pointer; margin-bottom:8px; }
+.vote-actions { display:flex; gap:8px; }
+.vote-valid-btn { flex:1; background:rgba(39,174,96,0.15); border:1px solid var(--green); color:var(--green); padding:8px; font-size:11px; cursor:pointer; border-radius:6px; font-family:'Raleway',sans-serif; }
+.vote-del-btn { flex:1; background:rgba(192,57,43,0.15); border:1px solid var(--red-bright); color:var(--red-bright); padding:8px; font-size:11px; cursor:pointer; border-radius:6px; font-family:'Raleway',sans-serif; }
+.vote-status { display:inline-block; padding:3px 10px; border-radius:10px; font-size:10px; letter-spacing:1px; }
+.status-pending { background:rgba(212,175,55,0.1); color:var(--gold); border:1px solid rgba(212,175,55,0.3); }
+.status-valid { background:rgba(39,174,96,0.1); color:var(--green); border:1px solid var(--green); }
+
+/* TOAST */
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,100,0,0.9); border:1px solid #00AA00; color:#00FF00; padding:10px 24px; border-radius:20px; font-size:11px; letter-spacing:1px; display:none; z-index:999; }
+
+/* IMAGE MODAL */
+.img-modal { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; align-items:center; justify-content:center; z-index:200; padding:20px; }
+.img-modal.active { display:flex; }
+.img-modal img { max-width:100%; max-height:90vh; border-radius:8px; border:2px solid var(--gold); }
+.img-modal-close { position:absolute; top:16px; right:16px; font-size:28px; color:var(--gold); cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="font-size:32px;margin-bottom:12px;">🔐</div>
+    <div class="login-title">Espace Admin</div>
+    <div class="login-sub">Amani Challenge 2026</div>
+    <input class="input-field" type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Accéder</button>
+    <div class="login-error" id="login-error">❌ Mot de passe incorrect</div>
+    <div class="login-loading" id="login-loading">⏳ Vérification...</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel" style="display:none;">
+  <div class="topbar">
+    <button onclick="window.location.href='/'" style="background:transparent;border:1px solid rgba(212,175,55,0.3);color:var(--gold);width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
+    <div class="topbar-title" style="flex:1;text-align:center;">🕊️ Admin</div>
+    <button class="logout-btn" onclick="logout()">Quitter</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('tab-provinces')">👥 Candidats</div>
+    <div class="tab" onclick="switchTab('tab-votes')">🗳️ Votes</div>
+    <div class="tab" onclick="switchTab('tab-settings')">⚙️ Paramètres</div>
+  </div>
+
+  <!-- TAB: CANDIDATS (26 provinces) -->
+  <div class="tab-content active" id="tab-provinces">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="stat-filled">0</div><div class="stat-lbl">Remplis</div></div>
+      <div class="stat-box"><div class="stat-num">26</div><div class="stat-lbl">Provinces</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-votes-count">—</div><div class="stat-lbl">Votes</div></div>
+    </div>
+    <div class="sec-title">26 Provinces — Ajoutez nom et photo</div>
+    <div class="provinces-grid" id="provinces-grid"></div>
+  </div>
+
+  <!-- TAB: VOTES -->
+  <div class="tab-content" id="tab-votes">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="stat-total-votes">0</div><div class="stat-lbl">Total votes</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-pending">0</div><div class="stat-lbl">En attente</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-validated">0</div><div class="stat-lbl">Validés</div></div>
+    </div>
+    <div class="sec-title">Preuves de vote</div>
+    <div id="votes-list">
+      <div style="text-align:center;padding:40px;color:rgba(240,230,200,0.3);">
+        <div style="font-size:36px;margin-bottom:12px;">🗳️</div>
+        Chargement des votes...
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SETTINGS -->
+  <div class="tab-content" id="tab-settings">
+    <!-- VOTE OPEN/CLOSE -->
+    <div class="sec-title">Contrôle du vote</div>
+    <div style="background:var(--dark3);border:1px solid rgba(212,175,55,0.2);border-radius:10px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:12px;color:rgba(240,230,200,0.6);margin-bottom:14px;line-height:1.8;">
+        Ouvrez ou fermez le vote. Quand fermé, les gens voient les candidats mais ne peuvent pas voter.
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold);">Statut du vote</div>
+          <div id="vote-status-text" style="font-size:11px;color:rgba(240,230,200,0.5);margin-top:2px;">Chargement...</div>
+        </div>
+        <div id="vote-status-badge" style="padding:6px 16px;border-radius:20px;font-size:11px;font-family:'Cinzel',serif;letter-spacing:1px;">—</div>
+      </div>
+      <button id="toggle-vote-btn" onclick="toggleVote()" style="width:100%;padding:14px;border-radius:8px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;cursor:pointer;border:1px solid var(--gold);transition:all 0.3s;">
+        Chargement...
+      </button>
+    </div>
+
+    <div class="sec-title">Numéros de paiement</div>
+    <div class="pay-form">
+      <div class="pay-hint">Ces numéros apparaissent dans l'écran de vote et sont vérifiés par l'IA. Ils s'affichent directement quand vous les enregistrez.</div>
+      <div class="pay-row">
+        <div class="pay-label">📱 Airtel</div>
+        <input class="input-field" type="text" id="airtel-input" placeholder="Numéro Airtel Money" style="margin:0;flex:1;" oninput="previewNumbers()">
+      </div>
+      <div class="pay-row">
+        <div class="pay-label">📱 M-Pesa</div>
+        <input class="input-field" type="text" id="mpesa-input" placeholder="Numéro M-Pesa" style="margin:0;flex:1;" oninput="previewNumbers()">
+      </div>
+      <div class="pay-row">
+        <div class="pay-label">🍊 Orange</div>
+        <input class="input-field" type="text" id="orange-input" placeholder="Numéro Orange Money" style="margin:0;flex:1;" oninput="previewNumbers()">
+      </div>
+      <button class="save-pay-btn" onclick="savePaymentNumbers()">💾 Enregistrer les numéros</button>
+      <!-- Preview -->
+      <div id="numbers-preview" style="margin-top:12px;display:none;">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">Aperçu dans l'app :</div>
+        <div id="preview-airtel" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(212,175,55,0.15);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:13px;color:white;"></div>
+        <div id="preview-mpesa" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(212,175,55,0.15);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:13px;color:white;"></div>
+        <div id="preview-orange" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(212,175,55,0.15);border-radius:8px;padding:10px 12px;font-size:13px;color:white;"></div>
+      </div>
+    </div>
+
+    <div class="sec-title">Informations</div>
+    <div style="background:var(--dark3);border:1px solid rgba(212,175,55,0.2);border-radius:10px;padding:16px;font-size:12px;line-height:1.8;color:rgba(240,230,200,0.7);">
+      <div style="margin-bottom:8px;">🕊️ <strong style="color:var(--gold)">Amani Challenge 2026</strong></div>
+      <div>📅 1 — 15 Août 2026 • Kinshasa, RDC</div>
+      <div>💰 1 voix = 0.5$ = 1 200 FC</div>
+      <div>🔐 Mot de passe : géré via Google Sheets</div>
+      <div style="margin-top:10px;font-size:10px;color:rgba(240,230,200,0.3);">Application conçue par Shaffy Djuma Daray<br>Coordonnateur — Fondation AIME TEZA Nord-Kivu</div>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="img-modal" id="img-modal" onclick="closeModal()">
+  <div class="img-modal-close" onclick="closeModal()">✕</div>
+  <img id="modal-img" src="" alt="Preuve de vote">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== CONFIG =====
+const SHEETDB_CANDIDATS = 'https://sheetdb.io/api/v1/6925rremepu91?sheet=Candidats';
+const SHEETDB_CONFIG = 'https://sheetdb.io/api/v1/6925rremepu91?sheet=Config';
+const FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/fondation-aime-teza-4453d/databases/(default)/documents';
+const FIRESTORE_CONFIG_URL = FIRESTORE_BASE + '/amani_config/parametres';
+const FIRESTORE_CANDIDATS_URL = FIRESTORE_BASE + '/amani_candidats';
+const FIRESTORE_URL = 'https://firestore.googleapis.com/v1/projects/fondation-aime-teza-4453d/databases/(default)/documents/votes_amani';
+const CLOUDINARY_CLOUD = 'dg7pbnnwq';
+const CLOUDINARY_PRESET = 'amanichallenge2026';
+
+const PROVINCES = [
+  "Kinshasa","Kongo Central","Kwango","Kwilu","Mai-Ndombe",
+  "Kasaï","Kasaï Central","Kasaï Oriental","Lomami","Sankuru",
+  "Maniema","Sud-Kivu","Nord-Kivu","Ituri","Haut-Uélé",
+  "Tshopo","Bas-Uélé","Nord-Ubangi","Mongala","Sud-Ubangi",
+  "Équateur","Tshuapa","Tanganyika","Haut-Lomami","Lualaba","Haut-Katanga"
+];
+// ==================
+
+let candidatesData = {};
+let votesData = [];
+
+// LOGIN
+async function checkLogin() {
+  const pwd = document.getElementById('pwd-input').value.trim();
+  if (!pwd) return;
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-loading').style.display = 'block';
+  document.querySelector('.login-btn').disabled = true;
+
+  try {
+    const enc = new TextEncoder();
+    const buf = await crypto.subtle.digest('SHA-256', enc.encode(pwd));
+    const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    if (hex === '6c62911d17857945cb221254b0efd12aae8266c2085fb44344c77f7b12c56f9d') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      initAdmin();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('login-error').textContent = '⚠️ Erreur';
+    document.getElementById('login-error').style.display = 'block';
+  }
+  document.getElementById('login-loading').style.display = 'none';
+  document.querySelector('.login-btn').disabled = false;
+}
+
+function logout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('pwd-input').value = '';
+}
+
+async function initAdmin() {
+  await loadPaymentInputs();
+  await loadCandidates();
+  buildProvincesGrid();
+  await loadVotes();
+  loadVoteCount();
+  await loadVoteStatus();
+}
+
+// TABS
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['tab-provinces','tab-votes','tab-settings'].indexOf(id);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  if (id === 'tab-votes') loadVotes();
+}
+
+// CANDIDATES
+async function loadCandidates() {
+  try {
+    const res = await fetch(FIRESTORE_CANDIDATS_URL + '?pageSize=50');
+    const data = await res.json();
+    (data.documents || []).forEach(doc => {
+      const f = doc.fields || {};
+      const name = f.nom ? f.nom.stringValue : '';
+      const prov = f.province ? f.province.stringValue : '';
+      const photo = f.photo ? f.photo.stringValue : '';
+      if (prov) candidatesData[prov] = {name, photo};
+    });
+  } catch(e) { console.error('loadCandidates error:', e); }
+}
+
+function buildProvincesGrid() {
+  const grid = document.getElementById('provinces-grid');
+  let filled = 0;
+  grid.innerHTML = PROVINCES.map((prov, i) => {
+    const data = candidatesData[prov] || {};
+    const hasCandidate = !!data.name;
+    const hasPhoto = !!data.photo;
+    if (hasCandidate) filled++;
+    
+    return `<div class="province-card ${hasCandidate?'has-candidate':''}" id="card-${i}">
+      <div class="photo-frame ${hasPhoto?'has-photo':''}" id="frame-${i}" onclick="document.getElementById('photo-file-${i}').click()">
+        ${hasPhoto ? `<img src="${data.photo}" id="photo-img-${i}" alt="">` : '<span id="photo-img-'+i+'">📷</span>'}
+        <input type="file" id="photo-file-${i}" accept="image/*" style="display:none" onchange="handlePhotoUpload(${i}, event)">
+      </div>
+      <div class="prov-info">
+        <div><span class="prov-num">${i+1}</span></div>
+        <div class="prov-name">📍 ${prov}</div>
+        <input class="input-field prov-input ${hasCandidate?'filled':''}" 
+          type="text" id="name-${i}" 
+          placeholder="Nom du candidat"
+          value="${data.name||''}"
+          oninput="onNameInput(${i})"
+          style="margin:0;padding:6px 8px;font-size:12px;">
+        <button class="save-prov-btn" onclick="saveCandidate(${i}, '${prov}')">💾 Enregistrer</button>
+        <div class="saved-badge" id="saved-${i}">✅ Enregistré !</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('stat-filled').textContent = filled;
+}
+
+function onNameInput(i) {
+  const input = document.getElementById('name-'+i);
+  input.classList.toggle('filled', input.value.length > 0);
+}
+
+async function handlePhotoUpload(i, event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  showToast('⏳ Upload photo...');
+  
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('folder', 'amani_candidats');
+    
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    const url = data.secure_url;
+    
+    // Update preview
+    const frame = document.getElementById('frame-'+i);
+    frame.classList.add('has-photo');
+    frame.querySelector(`#photo-img-${i}`).outerHTML = `<img src="${url}" id="photo-img-${i}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    
+    // Store URL temporarily
+    frame.dataset.photoUrl = url;
+    showToast('✅ Photo uploadée !');
+  } catch(e) {
+    showToast('❌ Erreur upload photo');
+  }
+}
+
+async function saveCandidate(i, province) {
+  const name = document.getElementById('name-'+i).value.trim();
+  const frame = document.getElementById('frame-'+i);
+  const photoImg = document.getElementById('photo-img-'+i);
+  const photo = frame.dataset.photoUrl || (photoImg && photoImg.src && photoImg.src.startsWith('http') ? photoImg.src : '');
+  
+  if (!name) { showToast('⚠️ Entrez le nom du candidat'); return; }
+  
+  showToast('⏳ Enregistrement...');
+  
+  try {
+    // Sauvegarder dans Firestore (document par province)
+    const docUrl = FIRESTORE_CANDIDATS_URL + '/' + encodeURIComponent(province);
+    await fetch(docUrl, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({fields: {
+        nom: {stringValue: name},
+        province: {stringValue: province},
+        photo: {stringValue: photo}
+      }})
+    });
+    
+    candidatesData[province] = {name, photo};
+    
+    // Update UI
+    document.getElementById('card-'+i).classList.add('has-candidate');
+    document.getElementById('name-'+i).classList.add('filled');
+    document.getElementById('saved-'+i).style.display = 'block';
+    setTimeout(() => { document.getElementById('saved-'+i).style.display = 'none'; }, 2000);
+    
+    // Update filled count
+    let filled = Object.keys(candidatesData).filter(k => PROVINCES.includes(k) && candidatesData[k].name).length;
+    document.getElementById('stat-filled').textContent = filled;
+    
+    showToast('✅ Candidat enregistré !');
+  } catch(e) {
+    showToast('❌ Erreur enregistrement');
+  }
+}
+
+// VOTES
+async function loadVotes() {
+  try {
+    const res = await fetch(FIRESTORE_URL + '?pageSize=100');
+    const data = await res.json();
+    
+    if (!data.documents) {
+      document.getElementById('votes-list').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(240,230,200,0.3);"><div style="font-size:36px;margin-bottom:12px;">🗳️</div>Aucun vote pour l\'instant</div>';
+      return;
+    }
+    
+    const docs = data.documents;
+    let pending = 0, validated = 0, totalVoix = 0;
+    
+    document.getElementById('votes-list').innerHTML = docs.map(doc => {
+      const f = doc.fields || {};
+      const candidat = f.candidat?.stringValue || '—';
+      const province = f.province?.stringValue || '—';
+      const montant = f.montant_fc?.integerValue || '—';
+      const voix = f.voix?.integerValue || 1;
+      const operateur = f.operateur?.stringValue || '—';
+      const reference = f.reference?.stringValue || '—';
+      const capture = f.capture_url?.stringValue || '';
+      const statut = f.statut?.stringValue || 'en_attente';
+      const timestamp = f.timestamp?.stringValue || '';
+      const docId = doc.name.split('/').pop();
+      
+      if (statut === 'valide') validated++;
+      else pending++;
+      totalVoix += parseInt(voix);
+      
+      const date = timestamp ? new Date(timestamp).toLocaleString('fr-FR') : '—';
+      
+      return `<div class="vote-card" id="vote-${docId}">
+        <div class="vote-card-header">
+          <div>
+            <div class="vote-candidat">${candidat}</div>
+            <div style="font-size:11px;color:rgba(240,230,200,0.5);">📍 ${province}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="vote-voix">⚡ ${voix} voix</div>
+            <div class="vote-status ${statut==='valide'?'status-valid':'status-pending'}">${statut==='valide'?'✅ Validé':'⏳ En attente'}</div>
+          </div>
+        </div>
+        <div class="vote-details">
+          <div class="vote-detail"><span class="vote-key">Montant : </span><span class="vote-val">${parseInt(montant).toLocaleString()} FC</span></div>
+          <div class="vote-detail"><span class="vote-key">Opérateur : </span><span class="vote-val">${operateur}</span></div>
+          <div class="vote-detail"><span class="vote-key">Référence : </span><span class="vote-val">${reference}</span></div>
+          <div class="vote-detail"><span class="vote-key">Date : </span><span class="vote-val">${date}</span></div>
+        </div>
+        ${capture ? `<img class="vote-capture" src="${capture}" alt="Preuve" onclick="openModal('${capture}')">` : '<div style="padding:20px;text-align:center;color:rgba(240,230,200,0.3);font-size:12px;border:1px dashed rgba(212,175,55,0.2);border-radius:8px;margin-bottom:8px;">Pas de capture</div>'}
+        <div class="vote-actions">
+          <button class="vote-valid-btn" onclick="validateVote('${docId}')">✅ Valider</button>
+          <button class="vote-del-btn" onclick="deleteVote('${docId}')">🗑️ Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
+    
+    document.getElementById('stat-total-votes').textContent = docs.length;
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-validated').textContent = validated;
+    
+  } catch(e) {
+    document.getElementById('votes-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--red-bright);font-size:12px;">❌ Erreur chargement votes</div>';
+  }
+}
+
+async function validateVote(docId) {
+  try {
+    await fetch(`${FIRESTORE_URL}/${docId}?updateMask.fieldPaths=statut`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({fields:{statut:{stringValue:'valide'}}})
+    });
+    showToast('✅ Vote validé !');
+    loadVotes();
+  } catch(e) { showToast('❌ Erreur'); }
+}
+
+async function deleteVote(docId) {
+  if (!confirm('Supprimer ce vote ?')) return;
+  try {
+    await fetch(`${FIRESTORE_URL}/${docId}`, {method:'DELETE'});
+    showToast('🗑️ Vote supprimé');
+    loadVotes();
+  } catch(e) { showToast('❌ Erreur'); }
+}
+
+async function loadVoteCount() {
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbwB3ZSlJDNEcQ-ZqnHDc1tQJUyRuTdFoAmLHnIW9CF9KSeErCqJvaMHM7Jaw3e7RawT/exec');
+    const data = await res.json();
+    document.getElementById('stat-votes-count').textContent = data.total || 0;
+  } catch(e) {}
+}
+
+// PAYMENT NUMBERS
+async function loadPaymentInputs() {
+  try {
+    const res = await fetch(FIRESTORE_CONFIG_URL);
+    const doc = await res.json();
+    const f = doc.fields || {};
+    document.getElementById('airtel-input').value = f.airtel ? f.airtel.stringValue : '';
+    document.getElementById('mpesa-input').value = f.mpesa ? f.mpesa.stringValue : '';
+    document.getElementById('orange-input').value = f.orange ? f.orange.stringValue : '';
+    previewNumbers();
+  } catch(e) { console.error('loadPaymentInputs:', e); }
+}
+
+function previewNumbers() {
+  const airtel = document.getElementById('airtel-input').value.trim();
+  const mpesa = document.getElementById('mpesa-input').value.trim();
+  const orange = document.getElementById('orange-input').value.trim();
+  
+  const preview = document.getElementById('numbers-preview');
+  const pa = document.getElementById('preview-airtel');
+  const pm = document.getElementById('preview-mpesa');
+  const po = document.getElementById('preview-orange');
+  
+  if (airtel || mpesa || orange) {
+    preview.style.display = 'block';
+    if (airtel) { pa.style.display='block'; pa.textContent = '📱 Airtel Money : ' + airtel; }
+    else pa.style.display='none';
+    if (mpesa) { pm.style.display='block'; pm.textContent = '📱 M-Pesa : ' + mpesa; }
+    else pm.style.display='none';
+    if (orange) { po.style.display='block'; po.textContent = '🍊 Orange Money : ' + orange; }
+    else po.style.display='none';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+async function savePaymentNumbers() {
+  const airtel = document.getElementById('airtel-input').value.trim();
+  const mpesa = document.getElementById('mpesa-input').value.trim();
+  const orange = document.getElementById('orange-input').value.trim();
+  
+  showToast('⏳ Enregistrement...');
+  
+  try {
+    const res = await fetch(FIRESTORE_CONFIG_URL, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({fields: {
+        airtel: {stringValue: airtel},
+        mpesa: {stringValue: mpesa},
+        orange: {stringValue: orange}
+      }})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    previewNumbers();
+    showToast('✅ Numéros enregistrés et visibles dans l\'app !');
+  } catch(e) {
+    showToast('❌ Erreur enregistrement');
+  }
+}
+
+let voteIsOpen = true;
+
+async function loadVoteStatus() {
+  try {
+    const res = await fetch(FIRESTORE_CONFIG_URL);
+    const doc = await res.json();
+    const f = doc.fields || {};
+    voteIsOpen = !f.vote_ouvert || f.vote_ouvert.stringValue.toLowerCase() !== 'non';
+  } catch(e) { voteIsOpen = true; }
+  updateVoteStatusUI();
+}
+
+function updateVoteStatusUI() {
+  const badge = document.getElementById('vote-status-badge');
+  const text = document.getElementById('vote-status-text');
+  const btn = document.getElementById('toggle-vote-btn');
+  
+  if (voteIsOpen) {
+    badge.textContent = '🟢 OUVERT';
+    badge.style.background = 'rgba(39,174,96,0.15)';
+    badge.style.border = '1px solid #27AE60';
+    badge.style.color = '#27AE60';
+    text.textContent = 'Les gens peuvent voter maintenant';
+    btn.textContent = '🔒 Fermer le vote';
+    btn.style.background = 'rgba(192,57,43,0.15)';
+    btn.style.color = 'var(--red-bright)';
+    btn.style.borderColor = 'var(--red-bright)';
+  } else {
+    badge.textContent = '🔴 FERMÉ';
+    badge.style.background = 'rgba(192,57,43,0.15)';
+    badge.style.border = '1px solid var(--red-bright)';
+    badge.style.color = 'var(--red-bright)';
+    text.textContent = 'Les gens voient les candidats mais ne peuvent pas voter';
+    btn.textContent = '🟢 Ouvrir le vote';
+    btn.style.background = 'rgba(39,174,96,0.15)';
+    btn.style.color = '#27AE60';
+    btn.style.borderColor = '#27AE60';
+  }
+}
+
+async function toggleVote() {
+  voteIsOpen = !voteIsOpen;
+  updateVoteStatusUI();
+  showToast('⏳ Mise à jour...');
+  
+  try {
+    // Lire d'abord les numéros existants
+    const r = await fetch(FIRESTORE_CONFIG_URL);
+    const d = await r.json();
+    const f = d.fields || {};
+    await fetch(FIRESTORE_CONFIG_URL, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({fields: {
+        airtel: f.airtel || {stringValue: ''},
+        mpesa: f.mpesa || {stringValue: ''},
+        orange: f.orange || {stringValue: ''},
+        vote_ouvert: {stringValue: voteIsOpen ? 'oui' : 'non'}
+      }})
+    });
+    showToast(voteIsOpen ? '🟢 Vote ouvert !' : '🔴 Vote fermé !');
+  } catch(e) { showToast('❌ Erreur: ' + e.message); }
+}
+
+// MODAL
+function openModal(url) {
+  document.getElementById('modal-img').src = url;
+  document.getElementById('img-modal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('img-modal').classList.remove('active');
+}
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+
+document.getElementById('pwd-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkLogin();
+});
+</script>
+</body>
+</html>
