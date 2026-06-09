@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ERUDA DEBUG CONSOLE -->
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
 <title>Amani Challenge — Voter</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -551,50 +554,67 @@ async function loadCandidates() {
 }
 
 
+// Normalise un numéro de téléphone congolais en 9 chiffres de base (sans préfixe pays ni zéro)
+// Ex: "0837168481" → "837168481"  /  "+243 837 168 481" → "837168481"  /  "243837168481" → "837168481"
+function normalizePhone(raw) {
+  if (!raw) return '';
+  let n = String(raw).replace(/[\s\-\.\(\)]/g, '');  // retire espaces, tirets, points, parenthèses
+  n = n.replace(/^\+/, '');                             // retire le +
+  if (n.startsWith('243')) n = n.slice(3);              // retire préfixe pays 243
+  if (n.startsWith('0')) n = n.slice(1);                // retire le zéro initial
+  return n; // 9 chiffres restants, ex: "837168481"
+}
+
+// Vérifie si le numéro détecté par l'IA correspond à l'un des numéros officiels
+function phoneMatch(detected, officialList) {
+  if (!officialList || officialList.length === 0) return true; // pas de numéros configurés → on laisse passer
+  const detNorm = normalizePhone(detected);
+  if (!detNorm || detNorm.length < 7) return false;
+  return officialList.some(official => {
+    const offNorm = normalizePhone(official);
+    // Match exact OU si l'un contient les 8 derniers chiffres de l'autre
+    return detNorm === offNorm
+      || detNorm.endsWith(offNorm.slice(-8))
+      || offNorm.endsWith(detNorm.slice(-8));
+  });
+}
+
 async function analyzeImage(dataUrl, file) {
   document.getElementById('ai-box').style.display = 'block';
   document.getElementById('ai-loading').style.display = 'flex';
   document.getElementById('ai-results').style.display = 'none';
   document.getElementById('btn-step2').disabled = true;
 
-  const nums = Object.values(officialNumbers).filter(n=>n).join(', ');
-
   try {
     const base64 = dataUrl.split(',')[1];
 
-    // Normalize media_type — Claude only supports jpeg, png, gif, webp
+    // Gemini supporte jpeg, png, gif, webp — fallback jpeg pour heic/heif/etc.
     let mediaType = (file.type || 'image/jpeg').toLowerCase();
     if (!['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType)) {
-      mediaType = 'image/jpeg'; // fallback for heic/heif/etc
+      mediaType = 'image/jpeg';
     }
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Appel via la Netlify Function (clé API sécurisée côté serveur)
+    const response = await fetch('/.netlify/functions/analyze', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer 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'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'qwen/qwen-2.5-vl-7b-instruct:free',
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } },
-            { type: 'text', text: 'Tu es un extracteur de données de reçus Mobile Money. Analyse cette image et réponds UNIQUEMENT avec un objet JSON, rien d\'autre, pas d\'explication, pas de markdown, juste le JSON brut: {"montant_fc":<nombre entier FC, convertis $ en FC: 1$=2800FC>,"operateur":"<Airtel Money ou M-Pesa ou Orange Money ou Inconnu>","numero_destinataire":"<numéro ou nom destinataire>","reference":"<code référence>","est_valide":<true ou false>}. Numéros officiels: ' + (nums||'Non configurés') }
-          ]
-        }],
-        max_tokens: 500
+        imageBase64: base64,
+        mediaType: mediaType,
+        officialNumbers: officialNumbers   // envoyé au serveur pour enrichir le prompt
       })
     });
 
-    const data = await response.json();
-    console.log('OpenRouter:', JSON.stringify(data));
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-    const rawText = (data.choices?.[0]?.message?.content || '').replace(/```json|```/g,'').trim();
-    if (!rawText) throw new Error('Réponse vide');
+    const result = await response.json();
+    if (result.error) throw new Error(result.error);
+
+    const rawText = (result.text || '').replace(/```json|```/g, '').trim();
+    if (!rawText) throw new Error('Réponse vide de Gemini');
+
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('JSON non trouvé');
-    // Nettoyer le JSON — remplacer guillemets spéciaux et fixer les clés sans guillemets
+    if (!jsonMatch) throw new Error('JSON non trouvé dans la réponse');
+
+    // Nettoyage des guillemets spéciaux et virgules traînantes
     let jsonStr = jsonMatch[0]
       .replace(/[\u2018\u2019]/g, "'")
       .replace(/[\u201C\u201D]/g, '"')
@@ -605,7 +625,7 @@ async function analyzeImage(dataUrl, file) {
     document.getElementById('ai-loading').style.display = 'none';
     document.getElementById('ai-results').style.display = 'block';
 
-    // Affichage montant : si en FC affiche FC, si en $ convertit
+    // Affichage montant
     const montantFC = parseInt(aiData.montant_fc) || 0;
     document.getElementById('r-montant').textContent = montantFC > 0
       ? `${montantFC.toLocaleString()} FC (~${(montantFC/2800).toFixed(1)}$)`
@@ -614,14 +634,14 @@ async function analyzeImage(dataUrl, file) {
     document.getElementById('r-numero').textContent = aiData.numero_destinataire || 'Non détecté';
     document.getElementById('r-reference').textContent = aiData.reference || 'Non détecté';
 
-    const numList = Object.values(officialNumbers).filter(n=>n).map(n=>n.replace(/[\s\-\+]/g,'').replace(/^243/,'0').replace(/^0/,''));
-    const destRaw = (aiData.numero_destinataire||'').replace(/[\s\-\+]/g,'').replace(/^243/,'0').replace(/^0/,'');
-    const numOk = numList.length === 0 || numList.some(n => destRaw.includes(n.replace(/^0/,'')) || n.replace(/^0/,'').includes(destRaw.slice(-8)));
+    // Comparaison des numéros avec normalisation robuste
+    const officialList = Object.values(officialNumbers).filter(n => n);
+    const numOk = phoneMatch(aiData.numero_destinataire, officialList);
 
     if (!aiData.est_valide) {
       document.getElementById('r-verdict').innerHTML = '<div class="ai-err">❌ Ce ne semble pas être un reçu de paiement valide</div>';
       document.getElementById('btn-step2').disabled = true;
-    } else if (numList.length > 0 && !numOk) {
+    } else if (officialList.length > 0 && !numOk) {
       document.getElementById('r-verdict').innerHTML = '<div class="ai-err">❌ Numéro destinataire invalide — envoyez aux numéros officiels ci-dessus</div>';
       document.getElementById('btn-step2').disabled = true;
     } else {
