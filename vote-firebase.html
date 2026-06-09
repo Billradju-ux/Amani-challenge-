@@ -608,8 +608,9 @@ async function analyzeImage(dataUrl, file) {
     document.getElementById('r-numero').textContent = aiData.numero_destinataire || 'Non détecté';
     document.getElementById('r-reference').textContent = aiData.reference || 'Non détecté';
 
-    const numList = Object.values(officialNumbers).filter(n=>n).map(n=>n.replace(/\s/g,''));
-    const numOk = numList.length === 0 || numList.some(n => (aiData.numero_destinataire||'').replace(/\s/g,'').includes(n));
+    const numList = Object.values(officialNumbers).filter(n=>n).map(n=>n.replace(/[\s\-\+]/g,'').replace(/^243/,'0').replace(/^0/,''));
+    const destRaw = (aiData.numero_destinataire||'').replace(/[\s\-\+]/g,'').replace(/^243/,'0').replace(/^0/,'');
+    const numOk = numList.length === 0 || numList.some(n => destRaw.includes(n.replace(/^0/,'')) || n.replace(/^0/,'').includes(destRaw.slice(-8)));
 
     if (!aiData.est_valide) {
       document.getElementById('r-verdict').innerHTML = '<div class="ai-err">❌ Ce ne semble pas être un reçu de paiement valide</div>';
