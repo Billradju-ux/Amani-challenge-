@@ -580,7 +580,7 @@ async function analyzeImage(dataUrl, file) {
           role: 'user',
           content: [
             { type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } },
-            { type: 'text', text: 'Analyse ce reçu de paiement Mobile Money RDC. Réponds UNIQUEMENT en JSON valide sans texte avant ou après, sans backticks: {"montant_fc":<nombre entier FC, convertis $ en FC: 1$=2800FC>,"operateur":"<Airtel Money ou M-Pesa ou Orange Money ou Inconnu>","numero_destinataire":"<numéro ou nom destinataire>","reference":"<code référence>","est_valide":<true si reçu de paiement réel, sinon false>}. Numéros officiels: ' + (nums||'Non configurés') }
+            { type: 'text', text: 'Tu es un extracteur de données de reçus Mobile Money. Analyse cette image et réponds UNIQUEMENT avec un objet JSON, rien d\'autre, pas d\'explication, pas de markdown, juste le JSON brut: {"montant_fc":<nombre entier FC, convertis $ en FC: 1$=2800FC>,"operateur":"<Airtel Money ou M-Pesa ou Orange Money ou Inconnu>","numero_destinataire":"<numéro ou nom destinataire>","reference":"<code référence>","est_valide":<true ou false>}. Numéros officiels: ' + (nums||'Non configurés') }
           ]
         }],
         max_tokens: 500
