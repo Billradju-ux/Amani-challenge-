@@ -594,7 +594,13 @@ async function analyzeImage(dataUrl, file) {
     if (!rawText) throw new Error('Réponse vide');
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('JSON non trouvé');
-    aiData = JSON.parse(jsonMatch[0]);
+    // Nettoyer le JSON — remplacer guillemets spéciaux et fixer les clés sans guillemets
+    let jsonStr = jsonMatch[0]
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/,\s*}/g, '}')
+      .replace(/,\s*]/g, ']');
+    aiData = JSON.parse(jsonStr);
 
     document.getElementById('ai-loading').style.display = 'none';
     document.getElementById('ai-results').style.display = 'block';
