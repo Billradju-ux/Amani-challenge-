@@ -10,7 +10,7 @@ exports.handler = async (event) => {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, 'HTTP-Referer': 'https://stalwart-shortbread-688058.netlify.app', 'X-Title': 'Amani Challenge' },
-      body: JSON.stringify({ model: 'meta-llama/llama-4-maverick:free', messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: `data:${mediaType||'image/jpeg'};base64,${imageBase64}` } }, { type: 'text', text: prompt }] }], max_tokens: 300, temperature: 0.1 })
+      body: JSON.stringify({ model: 'qwen/qwen2.5-vl-3b-instruct:free', messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: `data:${mediaType||'image/jpeg'};base64,${imageBase64}` } }, { type: 'text', text: prompt }] }], max_tokens: 300, temperature: 0.1 })
     });
     const data = await response.json();
     if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
